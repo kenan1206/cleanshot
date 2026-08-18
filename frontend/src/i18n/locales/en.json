@@ -437,7 +437,10 @@
     "reset_done": "Free tier reset. Premium off.",
     "version": "CleanU · v1.0.0",
     "language_title": "Choose Language",
-    "language_sub": "The app will use this language on this device."
+    "language_sub": "The app will use this language on this device.",
+    "device_id_label": "Device ID",
+    "device_id_copy": "Copy",
+    "device_id_copied": "Copied!"
   },
   "tools": {
     "eyebrow": "EXTRA TOOLS",

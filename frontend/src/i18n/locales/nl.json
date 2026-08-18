@@ -437,7 +437,10 @@
     "reset_done": "Gratis versie gereset. Premium uit.",
     "version": "CleanU · v1.0.0",
     "language_title": "Kies taal",
-    "language_sub": "De app gebruikt deze taal op dit apparaat."
+    "language_sub": "De app gebruikt deze taal op dit apparaat.",
+    "device_id_label": "Apparaat-ID",
+    "device_id_copy": "Kopiëren",
+    "device_id_copied": "Gekopieerd!"
   },
   "tools": {
     "eyebrow": "EXTRA TOOLS",

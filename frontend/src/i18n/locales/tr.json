@@ -437,7 +437,10 @@
     "reset_done": "Ücretsiz sürüm sıfırlandı. Premium kapalı.",
     "version": "CleanU · v1.0.0",
     "language_title": "Dil Seç",
-    "language_sub": "Uygulama bu cihazda bu dili kullanacak."
+    "language_sub": "Uygulama bu cihazda bu dili kullanacak.",
+    "device_id_label": "Cihaz Kimliği",
+    "device_id_copy": "Kopyala",
+    "device_id_copied": "Kopyalandı!"
   },
   "tools": {
     "eyebrow": "EK ARAÇLAR",

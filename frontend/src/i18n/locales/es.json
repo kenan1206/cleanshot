@@ -437,7 +437,10 @@
     "reset_done": "Versión gratis reiniciada. Premium desactivado.",
     "version": "CleanU · v1.0.0",
     "language_title": "Elegir idioma",
-    "language_sub": "La app usará este idioma en este dispositivo."
+    "language_sub": "La app usará este idioma en este dispositivo.",
+    "device_id_label": "ID del dispositivo",
+    "device_id_copy": "Copiar",
+    "device_id_copied": "¡Copiado!"
   },
   "tools": {
     "eyebrow": "HERRAMIENTAS EXTRA",
