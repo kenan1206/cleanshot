@@ -1,10 +1,12 @@
-from fastapi import FastAPI, APIRouter, HTTPException
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends
+from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import secrets
+import hashlib
 from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
@@ -85,6 +87,14 @@ class EventCreate(BaseModel):
     properties: Dict[str, Any] = Field(default_factory=dict)
 
 
+class AdminLoginRequest(BaseModel):
+    password: str
+
+class AdminSetPremiumRequest(BaseModel):
+    is_premium: bool
+    plan: Optional[str] = None  # 'weekly' | 'lifetime' | None
+
+
 # ---------- Constants ----------
 FREE_MB_LIMIT = 100.0
 FREE_PHOTOS_LIMIT = 50
@@ -100,6 +110,31 @@ PLAN_PRICES = {
     "weekly": {"price": 4.99, "currency": "EUR", "period": "week", "trial_days": 7},
     "lifetime": {"price": 34.99, "currency": "EUR", "period": "lifetime"},
 }
+
+# ---------- Admin Auth ----------
+ADMIN_PASSWORD_HASH = hashlib.sha256("Fener.1907".encode()).hexdigest()
+ADMIN_TOKEN_EXPIRY_HOURS = 24
+
+# In-memory token store {token: expires_at}
+_admin_tokens: Dict[str, datetime] = {}
+
+def _create_admin_token() -> str:
+    token = secrets.token_urlsafe(32)
+    _admin_tokens[token] = datetime.now(timezone.utc) + timedelta(hours=ADMIN_TOKEN_EXPIRY_HOURS)
+    return token
+
+def _validate_admin_token(token: str) -> bool:
+    exp = _admin_tokens.get(token)
+    if not exp:
+        return False
+    if datetime.now(timezone.utc) > exp:
+        del _admin_tokens[token]
+        return False
+    return True
+
+def _check_admin(request: Request) -> bool:
+    token = request.cookies.get("cleanu_admin")
+    return bool(token and _validate_admin_token(token))
 
 
 # ---------- Routes ----------
@@ -403,6 +438,594 @@ async def get_plans():
 
 
 app.include_router(api_router)
+
+
+# ══════════════════════════════════════════════════════════════
+#  ADMIN PANEL
+# ══════════════════════════════════════════════════════════════
+
+@app.post("/api/admin/login", include_in_schema=False)
+async def admin_login(request: Request):
+    form = await request.form()
+    pw = form.get("password", "")
+    if hashlib.sha256(str(pw).encode()).hexdigest() != ADMIN_PASSWORD_HASH:
+        return HTMLResponse(_admin_login_html(error=True), status_code=401)
+    token = _create_admin_token()
+    resp = RedirectResponse(url="/api/admin", status_code=303)
+    resp.set_cookie("cleanu_admin", token, httponly=True, samesite="lax", max_age=86400)
+    return resp
+
+
+@app.get("/api/admin/logout", include_in_schema=False)
+async def admin_logout():
+    resp = RedirectResponse(url="/api/admin", status_code=303)
+    resp.delete_cookie("cleanu_admin")
+    return resp
+
+
+@app.get("/api/admin", response_class=HTMLResponse, include_in_schema=False)
+async def admin_dashboard(request: Request):
+    if not _check_admin(request):
+        return HTMLResponse(_admin_login_html())
+    return HTMLResponse(_admin_dashboard_html())
+
+
+# ── Admin API (JSON) ──────────────────────────────────────────
+
+@app.get("/api/admin/stats", include_in_schema=False)
+async def admin_stats(request: Request):
+    if not _check_admin(request):
+        raise HTTPException(status_code=401)
+    total_users = await db.users.count_documents({})
+    premium_users = await db.users.count_documents({"is_premium": True})
+    lifetime_users = await db.users.count_documents({"is_lifetime": True})
+    weekly_users = await db.users.count_documents({"plan": "weekly", "is_premium": True})
+    # today activity
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+    active_today = await db.users.count_documents({"updated_at": {"$gte": today_start}})
+    # totals
+    pipeline = [{"$group": {"_id": None, "total_mb": {"$sum": "$free_mb_used"}, "total_photos": {"$sum": "$free_photos_cleaned"}}}]
+    agg = await db.users.aggregate(pipeline).to_list(1)
+    total_mb = round(agg[0]["total_mb"], 1) if agg else 0
+    total_photos = agg[0]["total_photos"] if agg else 0
+    # total sessions
+    total_sessions = await db.sessions.count_documents({})
+    return {
+        "total_users": total_users,
+        "premium_users": premium_users,
+        "lifetime_users": lifetime_users,
+        "weekly_users": weekly_users,
+        "free_users": total_users - premium_users,
+        "active_today": active_today,
+        "total_mb_freed": total_mb,
+        "total_photos_cleaned": total_photos,
+        "total_sessions": total_sessions,
+    }
+
+
+@app.get("/api/admin/users", include_in_schema=False)
+async def admin_users(request: Request, page: int = 1, search: str = "", filter: str = "all"):
+    if not _check_admin(request):
+        raise HTTPException(status_code=401)
+    limit = 25
+    skip = (page - 1) * limit
+    query: Dict[str, Any] = {}
+    if search:
+        query["device_id"] = {"$regex": search, "$options": "i"}
+    if filter == "premium":
+        query["is_premium"] = True
+    elif filter == "free":
+        query["is_premium"] = False
+    elif filter == "lifetime":
+        query["is_lifetime"] = True
+    total = await db.users.count_documents(query)
+    cursor = db.users.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    users = await cursor.to_list(length=limit)
+    return {"users": users, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
+
+
+@app.post("/api/admin/users/{device_id}/premium", include_in_schema=False)
+async def admin_set_premium(device_id: str, payload: AdminSetPremiumRequest, request: Request):
+    if not _check_admin(request):
+        raise HTTPException(status_code=401)
+    now = datetime.now(timezone.utc)
+    fields: Dict[str, Any] = {
+        "is_premium": payload.is_premium,
+        "updated_at": now.isoformat(),
+    }
+    if not payload.is_premium:
+        fields.update({"plan": None, "is_lifetime": False, "trial_ends_at": None})
+    else:
+        plan = payload.plan or "lifetime"
+        fields["plan"] = plan
+        fields["is_lifetime"] = plan == "lifetime"
+        if plan == "weekly":
+            fields["trial_ends_at"] = (now + timedelta(days=7)).isoformat()
+        else:
+            fields["trial_ends_at"] = None
+    await db.users.update_one({"device_id": device_id}, {"$set": fields})
+    user = await db.users.find_one({"device_id": device_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+@app.post("/api/admin/users/{device_id}/reset", include_in_schema=False)
+async def admin_reset_user(device_id: str, request: Request):
+    if not _check_admin(request):
+        raise HTTPException(status_code=401)
+    await db.users.update_one(
+        {"device_id": device_id},
+        {"$set": {
+            "free_mb_used": 0.0, "free_photos_cleaned": 0,
+            "free_video_compress_used": 0, "free_live_still_used": 0,
+            "free_contacts_used": 0, "updated_at": now_iso(),
+        }},
+    )
+    return {"ok": True}
+
+
+@app.get("/api/admin/sessions", include_in_schema=False)
+async def admin_sessions(request: Request, limit: int = 50):
+    if not _check_admin(request):
+        raise HTTPException(status_code=401)
+    cursor = db.sessions.find({}, {"_id": 0}).sort("timestamp", -1).limit(limit)
+    sessions = await cursor.to_list(length=limit)
+    return {"sessions": sessions}
+
+
+# ── Admin HTML Helpers ────────────────────────────────────────
+
+def _admin_login_html(error: bool = False) -> str:
+    err_html = '<p style="color:#FF3B30;font-size:0.875rem;margin-top:8px">Falsches Passwort</p>' if error else ""
+    return f"""<!DOCTYPE html><html lang="de"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CleanU Admin</title>
+<style>
+  *{{box-sizing:border-box;margin:0;padding:0}}
+  body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F2F2F7;
+        min-height:100vh;display:flex;align-items:center;justify-content:center}}
+  .card{{background:#fff;border-radius:20px;padding:40px 36px;width:100%;max-width:380px;
+         box-shadow:0 4px 24px rgba(0,0,0,0.08)}}
+  .logo{{text-align:center;margin-bottom:28px}}
+  .logo .icon{{width:64px;height:64px;background:linear-gradient(135deg,#4F63FF,#6C4EF5);
+               border-radius:16px;display:inline-flex;align-items:center;justify-content:center;
+               font-size:28px;margin-bottom:12px}}
+  .logo h1{{font-size:1.5rem;font-weight:800;color:#000;letter-spacing:-0.5px}}
+  .logo p{{color:#8E8E93;font-size:0.875rem;margin-top:4px}}
+  label{{font-size:0.75rem;font-weight:600;color:#8E8E93;text-transform:uppercase;
+          letter-spacing:0.5px;display:block;margin-bottom:6px;margin-top:16px}}
+  input{{width:100%;padding:12px 14px;border:1.5px solid #E5E5EA;border-radius:12px;
+         font-size:1rem;outline:none;transition:border-color 0.2s;background:#fff}}
+  input:focus{{border-color:#007AFF}}
+  button{{width:100%;margin-top:20px;padding:14px;background:#007AFF;color:#fff;border:none;
+           border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer}}
+  button:active{{opacity:0.85}}
+</style></head><body>
+<div class="card">
+  <div class="logo">
+    <div class="icon">✦</div>
+    <h1>CleanU Admin</h1>
+    <p>Dashboard · Zugang</p>
+  </div>
+  <form method="POST" action="/api/admin/login">
+    <label>Passwort</label>
+    <input type="password" name="password" placeholder="••••••••" autofocus autocomplete="current-password">
+    {err_html}
+    <button type="submit">Einloggen</button>
+  </form>
+</div>
+</body></html>"""
+
+
+def _admin_dashboard_html() -> str:
+    return """<!DOCTYPE html><html lang="de"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CleanU Admin</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F2F2F7;color:#000;min-height:100vh}
+  /* Sidebar */
+  .sidebar{position:fixed;top:0;left:0;width:220px;height:100vh;background:#fff;
+            border-right:1px solid #E5E5EA;padding:24px 0;z-index:100}
+  .sidebar .brand{padding:0 20px 24px;border-bottom:1px solid #F2F2F7;margin-bottom:16px}
+  .brand .icon{width:40px;height:40px;background:linear-gradient(135deg,#4F63FF,#6C4EF5);
+                border-radius:10px;display:inline-flex;align-items:center;justify-content:center;
+                font-size:18px;margin-bottom:8px}
+  .brand h2{font-size:1rem;font-weight:800;color:#000}
+  .brand p{font-size:0.75rem;color:#8E8E93;margin-top:2px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;
+             border-radius:10px;margin:2px 8px;font-size:0.9rem;font-weight:500;color:#3A3A3C;transition:all 0.15s}
+  .nav-item:hover{background:#F2F2F7}
+  .nav-item.active{background:#EEF2FF;color:#007AFF;font-weight:600}
+  .nav-item .icon-sm{font-size:1.1rem;width:24px;text-align:center}
+  .nav-divider{height:1px;background:#F2F2F7;margin:12px 8px}
+  .logout-btn{position:absolute;bottom:24px;left:0;right:0;padding:0 8px}
+  .logout-btn a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
+                  color:#FF3B30;font-size:0.875rem;font-weight:500;text-decoration:none}
+  .logout-btn a:hover{background:#FFF0EE}
+  /* Main */
+  .main{margin-left:220px;padding:32px}
+  /* Header */
+  .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+  .page-title{font-size:1.75rem;font-weight:800;color:#000;letter-spacing:-0.5px}
+  .page-sub{font-size:0.875rem;color:#8E8E93;margin-top:4px}
+  /* Stats grid */
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+  .stat-card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+  .stat-card .label{font-size:0.75rem;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+  .stat-card .value{font-size:1.875rem;font-weight:800;color:#000;letter-spacing:-0.5px}
+  .stat-card .sub{font-size:0.75rem;color:#8E8E93;margin-top:4px}
+  .stat-card.blue .value{color:#007AFF}
+  .stat-card.green .value{color:#34C759}
+  .stat-card.purple .value{color:#AF52DE}
+  /* Section */
+  .section{background:#fff;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:24px}
+  .section-header{padding:20px 24px;border-bottom:1px solid #F2F2F7;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .section-title{font-size:1rem;font-weight:700;color:#000}
+  /* Search + Filter */
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .search-input{padding:8px 14px;border:1.5px solid #E5E5EA;border-radius:10px;font-size:0.875rem;
+                 outline:none;width:220px;background:#F9F9F9}
+  .search-input:focus{border-color:#007AFF;background:#fff}
+  .filter-btn{padding:7px 14px;border:1.5px solid #E5E5EA;border-radius:10px;font-size:0.8rem;
+               font-weight:500;background:#F9F9F9;cursor:pointer;color:#3A3A3C}
+  .filter-btn.active{background:#EEF2FF;border-color:#007AFF;color:#007AFF}
+  /* Table */
+  table{width:100%;border-collapse:collapse}
+  th{padding:10px 16px;text-align:left;font-size:0.72rem;font-weight:600;color:#8E8E93;
+      text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #F2F2F7}
+  td{padding:12px 16px;border-bottom:1px solid #F9F9F9;font-size:0.875rem;color:#1C1C1E;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#FAFAFA}
+  .did{font-family:monospace;font-size:0.8rem;color:#3A3A3C;background:#F2F2F7;
+        padding:2px 8px;border-radius:6px}
+  /* Badges */
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600}
+  .badge.premium{background:#E8F9EE;color:#34C759}
+  .badge.lifetime{background:#EEF2FF;color:#007AFF}
+  .badge.weekly{background:#FFF3E0;color:#FF9500}
+  .badge.free{background:#F2F2F7;color:#8E8E93}
+  /* Action buttons */
+  .action-btn{padding:5px 12px;border-radius:8px;font-size:0.78rem;font-weight:600;cursor:pointer;border:none;transition:all 0.15s}
+  .action-btn.activate{background:#34C759;color:#fff}
+  .action-btn.activate:hover{background:#2DB94D}
+  .action-btn.deactivate{background:#FF3B30;color:#fff}
+  .action-btn.deactivate:hover{background:#E0342A}
+  .action-btn.reset{background:#F2F2F7;color:#8E8E93}
+  .action-btn.reset:hover{background:#E5E5EA;color:#3A3A3C}
+  .actions-cell{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  /* Plan select */
+  .plan-select{padding:4px 8px;border:1.5px solid #E5E5EA;border-radius:8px;font-size:0.78rem;
+                background:#fff;cursor:pointer;outline:none;color:#3A3A3C}
+  /* Pagination */
+  .pagination{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;
+               border-top:1px solid #F2F2F7}
+  .page-info{font-size:0.8rem;color:#8E8E93}
+  .page-btns{display:flex;gap:8px}
+  .page-btn{padding:6px 14px;border-radius:8px;border:1.5px solid #E5E5EA;font-size:0.8rem;
+             font-weight:500;cursor:pointer;background:#fff;color:#3A3A3C}
+  .page-btn:disabled{opacity:0.4;cursor:default}
+  .page-btn:not(:disabled):hover{background:#F2F2F7}
+  /* Toast */
+  #toast{position:fixed;bottom:32px;right:32px;padding:12px 20px;border-radius:12px;
+          background:#1C1C1E;color:#fff;font-size:0.875rem;font-weight:500;
+          box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:999;
+          opacity:0;transform:translateY(8px);transition:all 0.25s;pointer-events:none}
+  #toast.show{opacity:1;transform:translateY(0)}
+  /* Loading */
+  .loading{text-align:center;padding:40px;color:#8E8E93;font-size:0.9rem}
+  /* Page sections */
+  .view{display:none}
+  .view.active{display:block}
+  /* Sessions */
+  .session-row td:first-child{font-family:monospace;font-size:0.78rem;color:#8E8E93}
+  /* Responsive */
+  @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+</style></head><body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="brand">
+    <div class="icon">✦</div>
+    <h2>CleanU</h2>
+    <p>Admin Dashboard</p>
+  </div>
+  <div class="nav-item active" onclick="showView('dashboard')" id="nav-dashboard">
+    <span class="icon-sm">📊</span> Übersicht
+  </div>
+  <div class="nav-item" onclick="showView('users')" id="nav-users">
+    <span class="icon-sm">👥</span> Nutzer
+  </div>
+  <div class="nav-item" onclick="showView('sessions')" id="nav-sessions">
+    <span class="icon-sm">🧹</span> Sessions
+  </div>
+  <div class="nav-divider"></div>
+  <div class="logout-btn">
+    <a href="/api/admin/logout">
+      <span style="font-size:1.1rem">🚪</span> Ausloggen
+    </a>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- DASHBOARD VIEW -->
+  <div class="view active" id="view-dashboard">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Übersicht</div>
+        <div class="page-sub" id="last-updated">Lade Daten...</div>
+      </div>
+      <button class="action-btn reset" onclick="loadStats()" style="padding:8px 16px">⟳ Aktualisieren</button>
+    </div>
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card"><div class="label">Gesamt Nutzer</div><div class="value" id="s-total">—</div><div class="sub">alle Geräte</div></div>
+      <div class="stat-card green"><div class="label">Premium</div><div class="value" id="s-premium">—</div><div class="sub" id="s-premium-sub">—</div></div>
+      <div class="stat-card blue"><div class="label">Heute aktiv</div><div class="value" id="s-active">—</div><div class="sub">geräte updated</div></div>
+      <div class="stat-card purple"><div class="label">Cleaning-Sessions</div><div class="value" id="s-sessions">—</div><div class="sub">insgesamt</div></div>
+      <div class="stat-card"><div class="label">Freemium</div><div class="value" id="s-free">—</div><div class="sub">noch nicht premium</div></div>
+      <div class="stat-card blue"><div class="label">Lifetime</div><div class="value" id="s-lifetime">—</div><div class="sub">einmalig bezahlt</div></div>
+      <div class="stat-card green"><div class="label">MB befreit</div><div class="value" id="s-mb">—</div><div class="sub">gesamt (free-tier)</div></div>
+      <div class="stat-card"><div class="label">Fotos gelöscht</div><div class="value" id="s-photos">—</div><div class="sub">gesamt (free-tier)</div></div>
+    </div>
+  </div>
+
+  <!-- USERS VIEW -->
+  <div class="view" id="view-users">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Nutzer</div>
+        <div class="page-sub" id="users-count-label">Lade...</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Alle Geräte</span>
+        <div class="toolbar">
+          <input class="search-input" id="search-input" placeholder="🔍  Device ID suchen..." oninput="debounceSearch()" />
+          <button class="filter-btn active" onclick="setFilter('all')" id="f-all">Alle</button>
+          <button class="filter-btn" onclick="setFilter('premium')" id="f-premium">Premium</button>
+          <button class="filter-btn" onclick="setFilter('free')" id="f-free">Gratis</button>
+          <button class="filter-btn" onclick="setFilter('lifetime')" id="f-lifetime">Lifetime</button>
+        </div>
+      </div>
+      <div id="users-table-wrap">
+        <div class="loading">Lade Nutzer...</div>
+      </div>
+      <div class="pagination" id="users-pagination" style="display:none">
+        <span class="page-info" id="pagination-info"></span>
+        <div class="page-btns">
+          <button class="page-btn" id="btn-prev" onclick="changePage(-1)" disabled>← Zurück</button>
+          <button class="page-btn" id="btn-next" onclick="changePage(1)">Weiter →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSIONS VIEW -->
+  <div class="view" id="view-sessions">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Cleaning-Sessions</div>
+        <div class="page-sub">Letzte 50 Cleaning-Aktionen</div>
+      </div>
+      <button class="action-btn reset" onclick="loadSessions()" style="padding:8px 16px">⟳ Aktualisieren</button>
+    </div>
+    <div class="section">
+      <table>
+        <thead>
+          <tr>
+            <th>Zeit</th>
+            <th>Device ID</th>
+            <th>Kategorie</th>
+            <th>Fotos</th>
+            <th>MB</th>
+          </tr>
+        </thead>
+        <tbody id="sessions-body">
+          <tr><td colspan="5" class="loading">Lade Sessions...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────
+let currentPage = 1;
+let currentFilter = 'all';
+let searchQuery = '';
+let totalPages = 1;
+let searchTimer = null;
+
+// ─── Navigation ──────────────────────────────────────────────
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'dashboard') loadStats();
+  if (name === 'users') { currentPage = 1; loadUsers(); }
+  if (name === 'sessions') loadSessions();
+}
+// ─── Toast ───────────────────────────────────────────────────
+function toast(msg, ok = true) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = ok ? '#1C1C1E' : '#FF3B30';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ─── Stats ───────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const r = await fetch('/api/admin/stats');
+    const d = await r.json();
+    document.getElementById('s-total').textContent = d.total_users;
+    document.getElementById('s-premium').textContent = d.premium_users;
+    document.getElementById('s-premium-sub').textContent = `${d.weekly_users} weekly · ${d.lifetime_users} lifetime`;
+    document.getElementById('s-active').textContent = d.active_today;
+    document.getElementById('s-sessions').textContent = d.total_sessions;
+    document.getElementById('s-free').textContent = d.free_users;
+    document.getElementById('s-lifetime').textContent = d.lifetime_users;
+    document.getElementById('s-mb').textContent = d.total_mb_freed + ' MB';
+    document.getElementById('s-photos').textContent = d.total_photos_cleaned.toLocaleString();
+    document.getElementById('last-updated').textContent = 'Zuletzt: ' + new Date().toLocaleTimeString('de-DE');
+  } catch(e) { toast('Fehler beim Laden', false); }
+}
+
+// ─── Users ───────────────────────────────────────────────────
+function debounceSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { currentPage = 1; loadUsers(); }, 350);
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  currentPage = 1;
+  ['all','premium','free','lifetime'].forEach(x => {
+    document.getElementById('f-' + x).classList.toggle('active', x === f);
+  });
+  loadUsers();
+}
+
+function changePage(dir) {
+  currentPage = Math.max(1, Math.min(totalPages, currentPage + dir));
+  loadUsers();
+}
+
+async function loadUsers() {
+  searchQuery = document.getElementById('search-input').value.trim();
+  const url = `/api/admin/users?page=${currentPage}&search=${encodeURIComponent(searchQuery)}&filter=${currentFilter}`;
+  document.getElementById('users-table-wrap').innerHTML = '<div class="loading">Lade Nutzer...</div>';
+  try {
+    const r = await fetch(url);
+    const d = await r.json();
+    totalPages = d.pages;
+    document.getElementById('users-count-label').textContent = d.total + ' Nutzer gefunden';
+    renderUsersTable(d.users);
+    renderPagination(d.total, d.page, d.pages);
+  } catch(e) { toast('Fehler beim Laden der Nutzer', false); }
+}
+
+function renderUsersTable(users) {
+  if (!users.length) {
+    document.getElementById('users-table-wrap').innerHTML = '<div class="loading">Keine Nutzer gefunden</div>';
+    document.getElementById('users-pagination').style.display = 'none';
+    return;
+  }
+  const rows = users.map(u => {
+    const isPremium = u.is_premium;
+    const badge = isPremium
+      ? (u.is_lifetime ? '<span class="badge lifetime">⭐ Lifetime</span>' : '<span class="badge weekly">🔄 Weekly</span>')
+      : '<span class="badge free">Gratis</span>';
+    const joined = u.created_at ? new Date(u.created_at).toLocaleDateString('de-DE') : '—';
+    const mb = (u.free_mb_used || 0).toFixed(1);
+    const photos = u.free_photos_cleaned || 0;
+    const shortId = u.device_id.length > 20 ? u.device_id.substring(0,20) + '…' : u.device_id;
+    const toggleBtn = isPremium
+      ? `<button class="action-btn deactivate" onclick="setPremium('${u.device_id}', false, null)">⛔ Deaktivieren</button>`
+      : `<select class="plan-select" id="plan-${u.device_id.replace(/[^a-z0-9]/gi,'_')}">
+           <option value="lifetime">Lifetime</option>
+           <option value="weekly">Weekly</option>
+         </select>
+         <button class="action-btn activate" onclick="setPremiumWithPlan('${u.device_id}')">✓ Aktivieren</button>`;
+    return `<tr>
+      <td><span class="did" title="${u.device_id}">${shortId}</span></td>
+      <td>${badge}</td>
+      <td>${photos}</td>
+      <td>${mb} MB</td>
+      <td>${joined}</td>
+      <td><div class="actions-cell">
+        ${toggleBtn}
+        <button class="action-btn reset" onclick="resetUser('${u.device_id}')">↺ Reset</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('users-table-wrap').innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Device ID</th><th>Status</th><th>Fotos</th><th>MB</th><th>Beigetreten</th><th>Aktionen</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function renderPagination(total, page, pages) {
+  const pag = document.getElementById('users-pagination');
+  if (pages <= 1) { pag.style.display = 'none'; return; }
+  pag.style.display = 'flex';
+  document.getElementById('pagination-info').textContent = `Seite ${page} von ${pages} (${total} Nutzer)`;
+  document.getElementById('btn-prev').disabled = page <= 1;
+  document.getElementById('btn-next').disabled = page >= pages;
+}
+
+function setPremiumWithPlan(deviceId) {
+  const safeId = deviceId.replace(/[^a-z0-9]/gi,'_');
+  const sel = document.getElementById('plan-' + safeId);
+  const plan = sel ? sel.value : 'lifetime';
+  setPremium(deviceId, true, plan);
+}
+
+async function setPremium(deviceId, isPremium, plan) {
+  try {
+    const r = await fetch(`/api/admin/users/${encodeURIComponent(deviceId)}/premium`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({is_premium: isPremium, plan: plan})
+    });
+    if (!r.ok) throw new Error();
+    const u = await r.json();
+    const status = isPremium ? (plan === 'lifetime' ? 'Lifetime Premium' : 'Weekly Premium') : 'Gratis';
+    toast(`✓ ${deviceId.substring(0,16)}… → ${status}`);
+    loadUsers();
+  } catch(e) { toast('Fehler beim Setzen', false); }
+}
+
+async function resetUser(deviceId) {
+  if (!confirm(`Zähler zurücksetzen für\\n${deviceId}?`)) return;
+  try {
+    await fetch(`/api/admin/users/${encodeURIComponent(deviceId)}/reset`, {method:'POST'});
+    toast('✓ Zähler zurückgesetzt');
+    loadUsers();
+  } catch(e) { toast('Fehler', false); }
+}
+
+// ─── Sessions ────────────────────────────────────────────────
+async function loadSessions() {
+  try {
+    const r = await fetch('/api/admin/sessions?limit=50');
+    const d = await r.json();
+    const body = document.getElementById('sessions-body');
+    if (!d.sessions.length) {
+      body.innerHTML = '<tr><td colspan="5" class="loading">Keine Sessions</td></tr>';
+      return;
+    }
+    body.innerHTML = d.sessions.map(s => {
+      const t = s.timestamp ? new Date(s.timestamp).toLocaleString('de-DE') : '—';
+      const shortId = (s.device_id || '').substring(0, 18) + '…';
+      return `<tr class="session-row">
+        <td>${t}</td>
+        <td><span class="did" title="${s.device_id}">${shortId}</span></td>
+        <td>${s.category || '—'}</td>
+        <td>${s.photos_cleaned || 0}</td>
+        <td>${(s.mb_freed || 0).toFixed(1)} MB</td>
+      </tr>`;
+    }).join('');
+  } catch(e) { toast('Fehler beim Laden der Sessions', false); }
+}
+
+// ─── Init ────────────────────────────────────────────────────
+loadStats();
+</script>
+</body></html>"""
 
 
 # ── Public Legal Pages (für Google OAuth Verification) ──────────────────────
