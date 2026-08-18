@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Linking, Modal } from "react-native";
+import * as Clipboard from "expo-clipboard";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -126,7 +127,13 @@ export default function Settings() {
           />
         </View>
 
-      
+        <View style={{ height: 20 }} />
+
+        {/* ── Device ID ── */}
+        <DeviceIdCard deviceId={user?.device_id ?? ""} />
+
+        <View style={{ height: 8 }} />
+
       </ScrollView>
 
       <Modal visible={langOpen} transparent animationType="slide" onRequestClose={() => setLangOpen(false)}>
@@ -177,6 +184,44 @@ export default function Settings() {
         </View>
       </Modal>
     </GradientBackground>
+  );
+}
+
+function DeviceIdCard({ deviceId }: { deviceId: string }) {
+  const t = useTheme();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!deviceId) return;
+    await Clipboard.setStringAsync(deviceId);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (!deviceId) return null;
+
+  return (
+    <View style={[styles.deviceCard, { backgroundColor: t.mode === "dark" ? "rgba(28,28,30,0.6)" : "rgba(255,255,255,0.7)", borderColor: t.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }]}>
+      <View style={styles.deviceHeader}>
+        <Ionicons name="phone-portrait-outline" size={15} color={t.colors.onSurfaceTertiary} />
+        <Text style={[styles.deviceLabel, { color: t.colors.onSurfaceTertiary }]}>Geräte-ID</Text>
+      </View>
+      <Pressable onPress={handleCopy} testID="device-id-copy" style={styles.deviceRow}>
+        <Text style={[styles.deviceId, { color: t.colors.onSurface }]} numberOfLines={1} ellipsizeMode="middle">
+          {deviceId}
+        </Text>
+        <View style={[styles.copyBadge, { backgroundColor: copied ? "#34C759" : (t.mode === "dark" ? "rgba(255,255,255,0.1)" : "#EEF2FF") }]}>
+          <Ionicons name={copied ? "checkmark" : "copy-outline"} size={14} color={copied ? "#fff" : t.colors.brandPrimary} />
+          <Text style={[styles.copyText, { color: copied ? "#fff" : t.colors.brandPrimary }]}>
+            {copied ? "Kopiert!" : "Kopieren"}
+          </Text>
+        </View>
+      </Pressable>
+      <Text style={[styles.deviceHint, { color: t.colors.onSurfaceTertiary }]}>
+        Teile diese ID um Premium zu aktivieren
+      </Text>
+    </View>
   );
 }
 
@@ -269,4 +314,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   langFlag: { fontSize: 22 },
+  deviceCard: {
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  deviceHeader: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 8 },
+  deviceLabel: { fontSize: 11, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5 },
+  deviceRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 8 },
+  deviceId: { flex: 1, fontSize: 13, fontWeight: "500", fontFamily: "monospace" },
+  copyBadge: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
+  copyText: { fontSize: 12, fontWeight: "600" },
+  deviceHint: { fontSize: 11, lineHeight: 15 },
 });
