@@ -446,17 +446,26 @@ app.include_router(api_router)
 
 @app.post("/api/admin/login", include_in_schema=False)
 async def admin_login(request: Request):
-    # Accept both JSON and raw body to avoid python-multipart dependency
-    try:
-        body = await request.json()
-        pw = body.get("password", "")
-    except Exception:
-        raw = await request.body()
-        pw = raw.decode("utf-8", errors="ignore").replace("password=", "").strip()
+    import json as _json
+    from urllib.parse import unquote_plus
+    raw = await request.body()
+    body_str = raw.decode("utf-8", errors="ignore")
+    pw = ""
+    ct = request.headers.get("content-type", "")
+    if "application/json" in ct:
+        try:
+            pw = _json.loads(body_str).get("password", "")
+        except Exception:
+            pw = ""
+    else:
+        for part in body_str.split("&"):
+            if part.startswith("password="):
+                pw = unquote_plus(part[9:])
+                break
     if hashlib.sha256(str(pw).encode()).hexdigest() != ADMIN_PASSWORD_HASH:
-        return {"ok": False, "error": "Falsches Passwort"}
+        return HTMLResponse(_admin_login_html(error=True), status_code=401)
     token = _create_admin_token()
-    resp = Response(content='{"ok":true}', media_type="application/json")
+    resp = RedirectResponse(url="/api/admin", status_code=303)
     resp.set_cookie("cleanu_admin", token, httponly=True, samesite="lax", max_age=86400)
     return resp
 
@@ -613,29 +622,12 @@ def _admin_login_html(error: bool = False) -> str:
     <h1>CleanU Admin</h1>
     <p>Dashboard · Zugang</p>
   </div>
-  <form onsubmit="doLogin(event)">
+  <form method="POST" action="/api/admin/login">
     <label>Passwort</label>
-    <input type="password" id="pw-input" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" autofocus autocomplete="current-password">
-    <p id="login-error" style="color:#FF3B30;font-size:0.875rem;margin-top:8px;display:none">Falsches Passwort</p>
-    <button type="submit" id="login-btn">Einloggen</button>
+    <input type="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" autofocus autocomplete="current-password">
+    {err_html}
+    <button type="submit">Einloggen</button>
   </form>
-  <script>
-  async function doLogin(e) {{
-    e.preventDefault();
-    var pw = document.getElementById('pw-input').value;
-    var btn = document.getElementById('login-btn');
-    btn.textContent = '...'; btn.disabled = true;
-    try {{
-      var r = await fetch('/api/admin/login', {{
-        method:'POST', headers:{{'Content-Type':'application/json'}},
-        body: JSON.stringify({{password: pw}})
-      }});
-      var d = await r.json();
-      if (d.ok) {{ window.location.href = '/api/admin'; }}
-      else {{ document.getElementById('login-error').style.display='block'; btn.textContent='Einloggen'; btn.disabled=false; }}
-    }} catch(err) {{ btn.textContent='Einloggen'; btn.disabled=false; }}
-  }}
-  </script>
 </div>
 </body></html>"""
 
