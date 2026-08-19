@@ -437,6 +437,14 @@ async def get_plans():
     return {"plans": PLAN_PRICES, "free_mb_limit": FREE_MB_LIMIT, "free_photos_limit": FREE_PHOTOS_LIMIT}
 
 
+@app.get("/api/screenshot-slide", response_class=HTMLResponse, include_in_schema=False)
+async def screenshot_slide():
+    html_path = Path(__file__).parent.parent / "frontend" / "assets" / "screenshot_slide.html"
+    if html_path.exists():
+        return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Not found</h1>", status_code=404)
+
+
 app.include_router(api_router)
 
 
