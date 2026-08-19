@@ -455,17 +455,17 @@ async def screenshot_slide2():
 
 @app.get("/api/download/slide1", include_in_schema=False)
 async def download_slide1():
-    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide1.png"
+    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide1_4k.png"
     if png.exists():
-        return FileResponse(str(png), media_type="image/png", filename="cleanu_slide1.png")
+        return FileResponse(str(png), media_type="image/png", filename="cleanu_slide1_1290x2796.png")
     return HTMLResponse(content="Not found", status_code=404)
 
 
 @app.get("/api/download/slide2", include_in_schema=False)
 async def download_slide2():
-    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide2.png"
+    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide2_4k.png"
     if png.exists():
-        return FileResponse(str(png), media_type="image/png", filename="cleanu_slide2.png")
+        return FileResponse(str(png), media_type="image/png", filename="cleanu_slide2_1182x2802.png")
     return HTMLResponse(content="Not found", status_code=404)
 
 
