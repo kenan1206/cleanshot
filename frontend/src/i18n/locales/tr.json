@@ -439,7 +439,9 @@
     "language_title": "Dil Seç",
     "language_sub": "Uygulama bu cihazda bu dili kullanacak.",
     "device_id_label": "Cihaz Kimliği",
-    "device_id_copy": "Kopyala",
+    "device_id_copy": "Paylaş",
+    "plan_lifetime_short": "Lifetime",
+    "plan_weekly_short": "Haftalık",
     "device_id_copied": "Kopyalandı!"
   },
   "tools": {

@@ -439,7 +439,9 @@
     "language_title": "Kies taal",
     "language_sub": "De app gebruikt deze taal op dit apparaat.",
     "device_id_label": "Apparaat-ID",
-    "device_id_copy": "Kopiëren",
+    "device_id_copy": "Delen",
+    "plan_lifetime_short": "Lifetime",
+    "plan_weekly_short": "Wekelijks",
     "device_id_copied": "Gekopieerd!"
   },
   "tools": {

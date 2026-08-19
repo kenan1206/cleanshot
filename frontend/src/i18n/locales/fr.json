@@ -439,7 +439,9 @@
     "language_title": "Choisir la langue",
     "language_sub": "L'app utilisera cette langue sur cet appareil.",
     "device_id_label": "ID de l'appareil",
-    "device_id_copy": "Copier",
+    "device_id_copy": "Partager",
+    "plan_lifetime_short": "Lifetime",
+    "plan_weekly_short": "Hebdomadaire",
     "device_id_copied": "Copié !"
   },
   "tools": {

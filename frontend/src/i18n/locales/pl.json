@@ -465,7 +465,9 @@
     "language_title": "Wybierz język",
     "language_sub": "Aplikacja użyje tego języka na tym urządzeniu.",
     "device_id_label": "ID urządzenia",
-    "device_id_copy": "Kopiuj",
+    "device_id_copy": "Udostępnij",
+    "plan_lifetime_short": "Lifetime",
+    "plan_weekly_short": "Tygodniowy",
     "device_id_copied": "Skopiowano!"
   },
   "tools": {

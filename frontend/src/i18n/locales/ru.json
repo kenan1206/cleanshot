@@ -465,7 +465,9 @@
     "language_title": "Выберите язык",
     "language_sub": "Приложение будет использовать этот язык на этом устройстве.",
     "device_id_label": "ID устройства",
-    "device_id_copy": "Копировать",
+    "device_id_copy": "Поделиться",
+    "plan_lifetime_short": "Lifetime",
+    "plan_weekly_short": "Еженедельный",
     "device_id_copied": "Скопировано!"
   },
   "tools": {

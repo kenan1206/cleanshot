@@ -439,7 +439,9 @@
     "language_title": "Sprache wählen",
     "language_sub": "Die App verwendet diese Sprache auf diesem Gerät.",
     "device_id_label": "Geräte-ID",
-    "device_id_copy": "Teilen"
+    "device_id_copy": "Teilen",
+    "plan_lifetime_short": "Lifetime",
+    "plan_weekly_short": "Wöchentlich"
   },
   "tools": {
     "eyebrow": "EXTRA-TOOLS",
