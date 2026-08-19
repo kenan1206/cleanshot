@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Linking, Modal } from "react-native";
-import * as Clipboard from "expo-clipboard";
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Linking, Modal, Share } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -189,14 +188,12 @@ export default function Settings() {
 
 function DeviceIdCard({ deviceId }: { deviceId: string }) {
   const t = useTheme();
-  const [copied, setCopied] = useState(false);
+  const { t: tr } = useTranslation();
 
   const handleCopy = async () => {
     if (!deviceId) return;
-    await Clipboard.setStringAsync(deviceId);
+    await Share.share({ message: deviceId });
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   if (!deviceId) return null;
@@ -211,10 +208,10 @@ function DeviceIdCard({ deviceId }: { deviceId: string }) {
         <Text style={[styles.deviceId, { color: t.colors.onSurface }]} numberOfLines={1} ellipsizeMode="middle">
           {deviceId}
         </Text>
-        <View style={[styles.copyBadge, { backgroundColor: copied ? "#34C759" : (t.mode === "dark" ? "rgba(255,255,255,0.1)" : "#EEF2FF") }]}>
-          <Ionicons name={copied ? "checkmark" : "copy-outline"} size={14} color={copied ? "#fff" : t.colors.brandPrimary} />
-          <Text style={[styles.copyText, { color: copied ? "#fff" : t.colors.brandPrimary }]}>
-            {copied ? tr("settings.device_id_copied") : tr("settings.device_id_copy")}
+        <View style={[styles.copyBadge, { backgroundColor: t.mode === "dark" ? "rgba(255,255,255,0.1)" : "#EEF2FF" }]}>
+          <Ionicons name="share-outline" size={14} color={t.colors.brandPrimary} />
+          <Text style={[styles.copyText, { color: t.colors.brandPrimary }]}>
+            {tr("settings.device_id_copy")}
           </Text>
         </View>
       </Pressable>

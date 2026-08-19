@@ -439,8 +439,7 @@
     "language_title": "Sprache wählen",
     "language_sub": "Die App verwendet diese Sprache auf diesem Gerät.",
     "device_id_label": "Geräte-ID",
-    "device_id_copy": "Kopieren",
-    "device_id_copied": "Kopiert!"
+    "device_id_copy": "Teilen"
   },
   "tools": {
     "eyebrow": "EXTRA-TOOLS",
