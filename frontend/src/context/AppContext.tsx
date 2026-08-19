@@ -322,6 +322,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (!deviceId) return;
       const res = await api.post<{ user: UserState }>("/users/subscribe", { device_id: deviceId, plan });
       setUser(res.user);
+      persistPremium(res.user);
     },
     [deviceId],
   );
@@ -330,15 +331,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (!deviceId) return false;
     const res = await api.post<{ restored: boolean; user: UserState }>("/users/restore", { device_id: deviceId });
     setUser(res.user);
+    persistPremium(res.user);
     return res.restored;
   }, [deviceId]);
 
   const resetFree = useCallback(async () => {
     if (!deviceId) return;
-    // Clear locally-persisted counters too, otherwise the max-merge would restore them.
     await Promise.all(
       (Object.keys(COUNTER_KEYS) as (keyof typeof COUNTER_KEYS)[]).map((k) => storage.setItem(COUNTER_KEYS[k], 0)),
     );
+    // Premium-Cache auch löschen beim Reset
+    persistPremium({ is_premium: false, is_lifetime: false, plan: undefined });
     const res = await api.post<UserState>("/users/reset", { device_id: deviceId });
     setUser(res);
   }, [deviceId]);
