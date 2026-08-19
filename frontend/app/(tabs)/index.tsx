@@ -159,28 +159,49 @@ export default function Start() {
     <View style={[styles.root, { paddingTop: insets.top }]}>
       {/* ── Fixed Header ── */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.appName}>{isPremium ? "✦ CleanU Pro" : "✦ CleanU"}</Text>
-        </View>
-        <View style={styles.headerRight}>
-          {!user?.is_premium && (
+        {isPremium ? (
+          <>
+            {/* Zentrierter Pro-Titel mit absolutem Layout */}
+            <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+              <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+                <Text style={styles.appNamePro}>✦ CleanU Pro</Text>
+              </View>
+            </View>
+            {/* Leerer linker Platzhalter für Balance */}
+            <View style={{ width: 32 }} />
+            {/* Settings rechts */}
             <Pressable
-              onPress={() => router.push("/paywall")}
-              testID="header-pro-btn"
-              style={styles.proBtn}
+              onPress={() => router.push("/(tabs)/settings")}
+              testID="header-settings-btn"
+              style={styles.gearBtn}
             >
-              <Ionicons name="star" size={12} color="#fff" />
-              <Text style={styles.proText}>PRO</Text>
+              <Ionicons name="settings-outline" size={22} color="#000" />
             </Pressable>
-          )}
-          <Pressable
-            onPress={() => router.push("/(tabs)/settings")}
-            testID="header-settings-btn"
-            style={styles.gearBtn}
-          >
-            <Ionicons name="settings-outline" size={22} color="#000" />
-          </Pressable>
-        </View>
+          </>
+        ) : (
+          <>
+            <View style={styles.headerLeft}>
+              <Text style={styles.appName}>✦ CleanU</Text>
+            </View>
+            <View style={styles.headerRight}>
+              <Pressable
+                onPress={() => router.push("/paywall")}
+                testID="header-pro-btn"
+                style={styles.proBtn}
+              >
+                <Ionicons name="star" size={12} color="#fff" />
+                <Text style={styles.proText}>PRO</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => router.push("/(tabs)/settings")}
+                testID="header-settings-btn"
+                style={styles.gearBtn}
+              >
+                <Ionicons name="settings-outline" size={22} color="#000" />
+              </Pressable>
+            </View>
+          </>
+        )}
       </View>
 
       {/* ── Free-tier quota bar (nur für Nicht-Premium) ── */}
@@ -359,6 +380,7 @@ const styles = StyleSheet.create({
   },
   headerLeft: { flexDirection: "row", alignItems: "center" },
   appName: { fontSize: 22, fontWeight: "800", color: "#000", letterSpacing: -0.5 },
+  appNamePro: { fontSize: 22, fontWeight: "800", color: "#007AFF", letterSpacing: -0.5 },
   headerRight: { flexDirection: "row", alignItems: "center", gap: 10 },
   proBtn: {
     flexDirection: "row",
