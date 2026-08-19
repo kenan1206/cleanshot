@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import * as Application from "expo-application";
-import { Platform } from "react-native";
+import { Platform, AppState } from "react-native";
 import { storage } from "@/src/utils/storage";
 import { api } from "@/src/api/client";
 
@@ -126,12 +126,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setUser((prev) => {
       const merged: UserState = {
         ...su,
+        // Counters: lokaler Wert gewinnt wenn höher (offline-first)
         free_mb_used: Math.max(su.free_mb_used ?? 0, prev?.free_mb_used ?? 0),
         free_photos_cleaned: Math.max(su.free_photos_cleaned ?? 0, prev?.free_photos_cleaned ?? 0),
         free_video_compress_used: Math.max(su.free_video_compress_used ?? 0, prev?.free_video_compress_used ?? 0),
         free_live_still_used: Math.max(su.free_live_still_used ?? 0, prev?.free_live_still_used ?? 0),
         free_contacts_used: Math.max(su.free_contacts_used ?? 0, prev?.free_contacts_used ?? 0),
-        // Onboarding: lokale Flag (prev) hat immer Vorrang — Backend darf nicht überschreiben
+        // Premium: Server hat IMMER Vorrang (Admin-Aktivierung muss greifen)
+        is_premium: su.is_premium,
+        is_lifetime: su.is_lifetime,
+        plan: su.plan,
+        // Onboarding: lokale Flag hat Vorrang
         onboarded: prev?.onboarded || false,
       };
       persistCounters(merged);
@@ -148,6 +153,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       // ignore
     }
   }, [deviceId, applyServer]);
+
+  // Auto-refresh wenn App in den Vordergrund kommt (z.B. nach Admin-Aktivierung)
+  useEffect(() => {
+    if (!deviceId) return;
+    const sub = AppState.addEventListener("change", (next) => {
+      if (next === "active") refresh();
+    });
+    return () => sub.remove();
+  }, [deviceId, refresh]);
 
   useEffect(() => {
     (async () => {
