@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 393px;
+    height: 852px;
+    background: #5383ff;
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Subtle radial glow top */
+  .glow-top {
+    position: absolute;
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Subtle radial glow bottom */
+  .glow-bottom {
+    position: absolute;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(30,30,120,0.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 52px 32px 44px;
+  }
+
+  /* Top badge */
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.28);
+    border-radius: 100px;
+    padding: 6px 16px;
+    margin-bottom: 28px;
+    backdrop-filter: blur(10px);
+  }
+  .badge-dot {
+    width: 7px;
+    height: 7px;
+    background: #ffffff;
+    border-radius: 50%;
+  }
+  .badge-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.95);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+
+  /* Main heading */
+  .headline {
+    font-size: 48px;
+    font-weight: 800;
+    color: #ffffff;
+    text-align: center;
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    margin-bottom: 8px;
+  }
+  .subheadline {
+    font-size: 17px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.75);
+    text-align: center;
+    letter-spacing: 0.1px;
+    margin-bottom: 36px;
+  }
+
+  /* Icon circle */
+  .icon-wrap {
+    width: 100px;
+    height: 100px;
+    background: rgba(255,255,255,0.15);
+    border: 1.5px solid rgba(255,255,255,0.25);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 36px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  }
+  .icon-symbol {
+    font-size: 48px;
+    line-height: 1;
+  }
+
+  /* Feature list */
+  .features {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+
+  .feature-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 16px;
+    padding: 14px 18px;
+    backdrop-filter: blur(8px);
+  }
+
+  .feature-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .feature-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: -0.2px;
+  }
+
+  .feature-arrow {
+    margin-left: auto;
+    color: rgba(255,255,255,0.4);
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  /* Bottom CTA */
+  .cta {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  }
+  .cta-text {
+    font-size: 17px;
+    font-weight: 700;
+    color: #5383ff;
+    letter-spacing: -0.3px;
+  }
+  .cta-icon {
+    font-size: 18px;
+  }
+
+  /* App name bottom */
+  .app-name {
+    margin-top: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.3px;
+  }
+</style>
+</head>
+<body>
+  <div class="glow-top"></div>
+  <div class="glow-bottom"></div>
+
+  <div class="container">
+
+    <div class="badge">
+      <div class="badge-dot"></div>
+      <span class="badge-text">✦ CleanU</span>
+    </div>
+
+    <div class="headline">Befreie dein<br>iPhone.</div>
+    <div class="subheadline">Aufräumen leicht gemacht</div>
+
+    <div class="icon-wrap">
+      <span class="icon-symbol">✦</span>
+    </div>
+
+    <div class="features">
+      <div class="feature-row">
+        <div class="feature-icon">📸</div>
+        <span class="feature-text">Foto-Duplikate & ähnliche Bilder</span>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-row">
+        <div class="feature-icon">🎬</div>
+        <span class="feature-text">Speicherfressende Videos</span>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-row">
+        <div class="feature-icon">📱</div>
+        <span class="feature-text">Alte Screenshots</span>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-row">
+        <div class="feature-icon">👥</div>
+        <span class="feature-text">Doppelte Kontakte</span>
+        <span class="feature-arrow">›</span>
+      </div>
+      <div class="feature-row">
+        <div class="feature-icon">⚡</div>
+        <span class="feature-text">Alles in 60 Sekunden</span>
+        <span class="feature-arrow">›</span>
+      </div>
+    </div>
+
+    <div class="cta">
+      <span class="cta-icon">✦</span>
+      <span class="cta-text">Kostenlos starten</span>
+    </div>
+
+    <span class="app-name">cleanu.app</span>
+
+  </div>
+</body>
+</html>
