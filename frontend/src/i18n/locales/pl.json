@@ -402,7 +402,15 @@
     "backup_last_value": "Jeszcze brak kopii zapasowej",
     "backup_hint": "iOS automatycznie tworzy kopię zapasową kontaktów przez iCloud, gdy Kontakty iCloud są włączone. Sprawdź Ustawienia → [Twoje imię] → iCloud → Kontakty.",
     "search_placeholder": "Szukaj kontaktu…",
-    "all_count": "{{count}} kontaktów"
+    "all_count": "{{count}} kontaktów",
+    "export_btn": "Eksportuj jako vCard (.vcf)",
+    "export_pro_btn": "Pro — Eksportuj jako vCard",
+    "exporting": "Eksportowanie…",
+    "exported": "Zapisano ✓",
+    "free_uses_remaining_one": "Pozostało {{count}} darmowe scalenie",
+    "free_uses_remaining_other": "Pozostało {{count}} darmowych scaleń",
+    "free_uses_none": "Brak darmowych scaleń",
+    "locked_banner": "Limit darmowy osiągnięty — Pro bez limitu"
   },
   "swipe": {
     "counter": "{{current}} / {{total}}",

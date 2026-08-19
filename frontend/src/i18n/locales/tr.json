@@ -376,7 +376,15 @@
     "backup_last_value": "Henüz yedekleme yok",
     "backup_hint": "iCloud Kişiler etkinleştirildiğinde iOS kişileri otomatik olarak iCloud üzerinden yedekler. Ayarlar → [adın] → iCloud → Kişiler'i kontrol et.",
     "search_placeholder": "Kişi ara…",
-    "all_count": "{{count}} kişi"
+    "all_count": "{{count}} kişi",
+    "export_btn": "vCard olarak dışa aktar (.vcf)",
+    "export_pro_btn": "Pro — vCard olarak dışa aktar",
+    "exporting": "Dışa aktarılıyor…",
+    "exported": "Kaydedildi ✓",
+    "free_uses_remaining_one": "{{count}} ücretsiz birleştirme kaldı",
+    "free_uses_remaining_other": "{{count}} ücretsiz birleştirme kaldı",
+    "free_uses_none": "Ücretsiz birleştirme kalmadı",
+    "locked_banner": "Ücretsiz limit doldu — Pro ile sınırsız"
   },
   "swipe": {
     "counter": "{{current}} / {{total}}",

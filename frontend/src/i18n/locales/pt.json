@@ -376,7 +376,15 @@
     "backup_last_value": "Ainda sem cópia de segurança",
     "backup_hint": "O iOS faz cópia de segurança dos contactos automaticamente via iCloud quando os Contactos do iCloud estão ativados. Verifique Definições → [o seu nome] → iCloud → Contactos.",
     "search_placeholder": "Procurar contacto…",
-    "all_count": "{{count}} contactos"
+    "all_count": "{{count}} contactos",
+    "export_btn": "Exportar como vCard (.vcf)",
+    "export_pro_btn": "Pro — Exportar como vCard",
+    "exporting": "Exportando…",
+    "exported": "Salvo ✓",
+    "free_uses_remaining_one": "{{count}} fusão gratuita restante",
+    "free_uses_remaining_other": "{{count}} fusões gratuitas restantes",
+    "free_uses_none": "Sem fusões gratuitas",
+    "locked_banner": "Limite gratuito atingido — Pro para ilimitado"
   },
   "swipe": {
     "counter": "{{current}} / {{total}}",

@@ -62,7 +62,7 @@ export default function CategoryDetail() {
     const out: Row[] = [];
     cr.groups.forEach((g, gi) => {
       if (cr.groups.length > 1) {
-        out.push({ key: `h_${g.key}`, kind: "header", label: `Group ${gi + 1} · ${g.assets.length} items · ${formatSize(g.estimatedSizeMB)}` });
+        out.push({ key: `h_${g.key}`, kind: "header", label: tr("categories.group_label", { n: gi + 1, count: g.assets.length, size: formatSize(g.estimatedSizeMB) }) });
       }
       for (let i = 0; i < g.assets.length; i += GRID_COLS) {
         out.push({ key: `r_${g.key}_${i}`, kind: "assets", assets: g.assets.slice(i, i + GRID_COLS) });

@@ -376,7 +376,15 @@
     "backup_last_value": "Nog geen backup",
     "backup_hint": "iOS maakt automatisch een backup van contacten via iCloud wanneer iCloud-contacten is ingeschakeld. Controleer Instellingen → [je naam] → iCloud → Contacten.",
     "search_placeholder": "Contact zoeken…",
-    "all_count": "{{count}} contacten"
+    "all_count": "{{count}} contacten",
+    "export_btn": "Exporteer als vCard (.vcf)",
+    "export_pro_btn": "Pro — Exporteer als vCard",
+    "exporting": "Exporteren…",
+    "exported": "Opgeslagen ✓",
+    "free_uses_remaining_one": "{{count}} gratis samenvoeging over",
+    "free_uses_remaining_other": "{{count}} gratis samenvoegingen over",
+    "free_uses_none": "Geen gratis samenvoegingen meer",
+    "locked_banner": "Gratis limiet bereikt — Pro voor onbeperkt"
   },
   "swipe": {
     "counter": "{{current}} / {{total}}",

@@ -385,13 +385,15 @@ function DuplicatesScreen({ groups, merging, onMerge, onSkip, insets, ctRemainin
           <View style={s.freeUsesBanner} testID="contacts-free-uses-banner">
             <Ionicons name="flash" size={14} color="#007AFF" />
             <Text style={s.freeUsesText}>
-              {ctRemaining === 0 ? "Keine freien Zusammenführungen mehr" : `${ctRemaining} freie Zusammenführung${ctRemaining !== 1 ? "en" : ""} übrig`}
+              {ctRemaining === 0
+                ? t("contact_detail_screen.free_uses_none")
+                : t("contact_detail_screen.free_uses_remaining", { count: ctRemaining })}
             </Text>
           </View>
         ) : (
           <View style={[s.freeUsesBanner, { backgroundColor: "#FFF4E5", borderColor: "#FF950030" }]} testID="contacts-locked-banner">
             <Ionicons name="lock-closed" size={14} color="#FF9500" />
-            <Text style={[s.freeUsesText, { color: "#FF9500" }]}>Gratis-Limit erreicht — Pro für unbegrenzt</Text>
+            <Text style={[s.freeUsesText, { color: "#FF9500" }]}>{t("contact_detail_screen.locked_banner")}</Text>
           </View>
         )
       }
@@ -511,12 +513,13 @@ function BackupsScreen({ total, contacts, insets, isPremium, onPaywall }: { tota
   const [exporting, setExporting] = useState(false);
   const [lastBackup, setLastBackup] = useState<string | null>(null);
   const [exported, setExported] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     storage.getItem(BACKUP_DATE_KEY, null as string | null).then(d => {
       if (d) {
         const date = new Date(d);
-        setLastBackup(date.toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }));
+        setLastBackup(date.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }));
       }
     });
   }, []);
@@ -527,7 +530,7 @@ function BackupsScreen({ total, contacts, insets, isPremium, onPaywall }: { tota
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     try {
       await exportVCard(contacts);
-      const now = new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+      const now = new Date().toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
       setLastBackup(now);
       setExported(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
@@ -540,36 +543,31 @@ function BackupsScreen({ total, contacts, insets, isPremium, onPaywall }: { tota
 
   return (
     <ScrollView contentContainerStyle={[s.backupContent, { paddingBottom: insets.bottom + 24 }]}>
-      {/* Icon */}
       <View style={s.backupIcon}>
         <Ionicons name="cloud-outline" size={56} color="#007AFF" />
       </View>
-      <Text style={s.backupTitle}>Kontakte sichern</Text>
-      <Text style={s.backupSub}>
-        Exportiere alle {total.toLocaleString("de-DE")} Kontakte als vCard-Datei (.vcf) — kompatibel mit iPhone, Mac, Google Contacts und Outlook.
-      </Text>
+      <Text style={s.backupTitle}>{t("contact_detail_screen.backup_title")}</Text>
+      <Text style={s.backupSub}>{t("contact_detail_screen.backup_sub", { count: total.toLocaleString() })}</Text>
 
-      {/* Info-Karte */}
       <View style={s.backupInfoCard}>
         <View style={s.backupInfoRow}>
           <Ionicons name="people-outline" size={20} color="#007AFF" />
           <View style={{ flex: 1 }}>
-            <Text style={s.backupInfoLabel}>Kontakte gesamt</Text>
-            <Text style={s.backupInfoValue}>{total.toLocaleString("de-DE")} Kontakte</Text>
+            <Text style={s.backupInfoLabel}>{t("contact_detail_screen.backup_total_label")}</Text>
+            <Text style={s.backupInfoValue}>{t("contact_detail_screen.backup_total_value", { count: total.toLocaleString() })}</Text>
           </View>
         </View>
         <View style={[s.backupInfoRow, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "rgba(0,0,0,0.06)", paddingTop: 14 }]}>
           <Ionicons name="time-outline" size={20} color={lastBackup ? "#34C759" : "#8E8E93"} />
           <View style={{ flex: 1 }}>
-            <Text style={s.backupInfoLabel}>Letzte Sicherung</Text>
+            <Text style={s.backupInfoLabel}>{t("contact_detail_screen.backup_last_label")}</Text>
             <Text style={[s.backupInfoValue, { color: lastBackup ? "#34C759" : "#8E8E93" }]}>
-              {lastBackup ?? "Noch nie gesichert"}
+              {lastBackup ?? t("contact_detail_screen.backup_last_value")}
             </Text>
           </View>
         </View>
       </View>
 
-      {/* Export Button */}
       <TouchableOpacity
         testID="backup-export-btn"
         style={[s.exportBtn, exporting && { opacity: 0.7 }, !isPremium && { backgroundColor: "#FF9500" }]}
@@ -580,7 +578,7 @@ function BackupsScreen({ total, contacts, insets, isPremium, onPaywall }: { tota
         {!isPremium ? (
           <>
             <Ionicons name="lock-closed" size={20} color="#fff" />
-            <Text style={s.exportBtnText}>Pro — Als vCard exportieren</Text>
+            <Text style={s.exportBtnText}>{t("contact_detail_screen.export_pro_btn")}</Text>
           </>
         ) : exporting ? (
           <ActivityIndicator size="small" color="#fff" />
@@ -589,17 +587,14 @@ function BackupsScreen({ total, contacts, insets, isPremium, onPaywall }: { tota
         )}
         {isPremium && (
           <Text style={s.exportBtnText}>
-            {exporting ? "Wird exportiert…" : exported ? "Gesichert ✓" : "Als vCard exportieren (.vcf)"}
+            {exporting ? t("contact_detail_screen.exporting") : exported ? t("contact_detail_screen.exported") : t("contact_detail_screen.export_btn")}
           </Text>
         )}
       </TouchableOpacity>
 
-      {/* Hinweis */}
       <View style={s.backupHint}>
         <Ionicons name="information-circle-outline" size={16} color="#8E8E93" />
-        <Text style={s.backupHintText}>
-          Die .vcf-Datei kannst du per AirDrop, iCloud Drive oder E-Mail sichern. Zum Importieren einfach die Datei öffnen.
-        </Text>
+        <Text style={s.backupHintText}>{t("contact_detail_screen.backup_hint")}</Text>
       </View>
     </ScrollView>
   );

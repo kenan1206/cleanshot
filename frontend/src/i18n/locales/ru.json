@@ -402,7 +402,15 @@
     "backup_last_value": "Резервных копий пока нет",
     "backup_hint": "iOS автоматически создаёт резервную копию контактов через iCloud, если контакты iCloud включены. Проверьте Настройки → [ваше имя] → iCloud → Контакты.",
     "search_placeholder": "Поиск контакта…",
-    "all_count": "{{count}} контактов"
+    "all_count": "{{count}} контактов",
+    "export_btn": "Экспорт как vCard (.vcf)",
+    "export_pro_btn": "Pro — Экспорт как vCard",
+    "exporting": "Экспорт…",
+    "exported": "Сохранено ✓",
+    "free_uses_remaining_one": "Осталось {{count}} бесплатное слияние",
+    "free_uses_remaining_other": "Осталось {{count}} бесплатных слияний",
+    "free_uses_none": "Бесплатные слияния закончились",
+    "locked_banner": "Бесплатный лимит — Pro для безлимита"
   },
   "swipe": {
     "counter": "{{current}} / {{total}}",

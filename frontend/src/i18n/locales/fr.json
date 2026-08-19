@@ -376,7 +376,15 @@
     "backup_last_value": "Aucune sauvegarde pour l'instant",
     "backup_hint": "iOS sauvegarde automatiquement les contacts via iCloud lorsque les Contacts iCloud sont activés. Vérifiez Réglages → [votre nom] → iCloud → Contacts.",
     "search_placeholder": "Rechercher un contact…",
-    "all_count": "{{count}} contacts"
+    "all_count": "{{count}} contacts",
+    "export_btn": "Exporter en vCard (.vcf)",
+    "export_pro_btn": "Pro — Exporter en vCard",
+    "exporting": "Export en cours…",
+    "exported": "Sauvegardé ✓",
+    "free_uses_remaining_one": "{{count}} fusion gratuite restante",
+    "free_uses_remaining_other": "{{count}} fusions gratuites restantes",
+    "free_uses_none": "Plus de fusions gratuites",
+    "locked_banner": "Limite gratuite atteinte — Pro pour illimité"
   },
   "swipe": {
     "counter": "{{current}} / {{total}}",
