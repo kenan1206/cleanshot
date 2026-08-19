@@ -573,7 +573,10 @@ async def admin_reset_user(device_id: str, request: Request):
         {"$set": {
             "free_mb_used": 0.0, "free_photos_cleaned": 0,
             "free_video_compress_used": 0, "free_live_still_used": 0,
-            "free_contacts_used": 0, "updated_at": now_iso(),
+            "free_contacts_used": 0,
+            "is_premium": False, "is_lifetime": False,
+            "plan": None, "trial_ends_at": None,
+            "updated_at": now_iso(),
         }},
     )
     return {"ok": True}
@@ -1008,7 +1011,7 @@ async function resetUser(deviceId) {
   if (!confirm(`Zähler zurücksetzen für\\n${deviceId}?`)) return;
   try {
     await fetch(`/api/admin/users/${encodeURIComponent(deviceId)}/reset`, {method:'POST'});
-    toast('✓ Zähler zurückgesetzt');
+    toast('✓ Komplett zurückgesetzt (Premium + Zähler)');
     loadUsers();
   } catch(e) { toast('Fehler', false); }
 }
