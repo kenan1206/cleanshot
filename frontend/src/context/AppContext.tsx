@@ -124,14 +124,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // a stale/behind backend (or a failed earlier sync) can never reset progress.
   const applyServer = useCallback((su: UserState) => {
     setUser((prev) => {
+      // Wenn Server alle Counter auf 0 hat → Admin-Reset erkannt → Server gewinnt
+      const adminReset =
+        (su.free_mb_used ?? 0) === 0 &&
+        (su.free_photos_cleaned ?? 0) === 0 &&
+        (su.free_video_compress_used ?? 0) === 0 &&
+        (su.free_live_still_used ?? 0) === 0 &&
+        (su.free_contacts_used ?? 0) === 0;
+
       const merged: UserState = {
         ...su,
-        // Counters: lokaler Wert gewinnt wenn höher (offline-first)
-        free_mb_used: Math.max(su.free_mb_used ?? 0, prev?.free_mb_used ?? 0),
-        free_photos_cleaned: Math.max(su.free_photos_cleaned ?? 0, prev?.free_photos_cleaned ?? 0),
-        free_video_compress_used: Math.max(su.free_video_compress_used ?? 0, prev?.free_video_compress_used ?? 0),
-        free_live_still_used: Math.max(su.free_live_still_used ?? 0, prev?.free_live_still_used ?? 0),
-        free_contacts_used: Math.max(su.free_contacts_used ?? 0, prev?.free_contacts_used ?? 0),
+        // Counters: bei Admin-Reset Server vertrauen, sonst lokalen Max behalten
+        free_mb_used: adminReset ? 0 : Math.max(su.free_mb_used ?? 0, prev?.free_mb_used ?? 0),
+        free_photos_cleaned: adminReset ? 0 : Math.max(su.free_photos_cleaned ?? 0, prev?.free_photos_cleaned ?? 0),
+        free_video_compress_used: adminReset ? 0 : Math.max(su.free_video_compress_used ?? 0, prev?.free_video_compress_used ?? 0),
+        free_live_still_used: adminReset ? 0 : Math.max(su.free_live_still_used ?? 0, prev?.free_live_still_used ?? 0),
+        free_contacts_used: adminReset ? 0 : Math.max(su.free_contacts_used ?? 0, prev?.free_contacts_used ?? 0),
         // Premium: Server hat IMMER Vorrang (Admin-Aktivierung muss greifen)
         is_premium: su.is_premium,
         is_lifetime: su.is_lifetime,
