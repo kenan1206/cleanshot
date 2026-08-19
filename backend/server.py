@@ -692,8 +692,10 @@ def _admin_dashboard_html() -> str:
   td{padding:12px 16px;border-bottom:1px solid #F9F9F9;font-size:0.875rem;color:#1C1C1E;vertical-align:middle}
   tr:last-child td{border-bottom:none}
   tr:hover td{background:#FAFAFA}
-  .did{font-family:monospace;font-size:0.8rem;color:#3A3A3C;background:#F2F2F7;
-        padding:2px 8px;border-radius:6px}
+  .did{font-family:monospace;font-size:0.78rem;color:#3A3A3C;background:#F2F2F7;
+        padding:3px 8px;border-radius:6px;max-width:260px;overflow:hidden;
+        text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle;cursor:pointer}
+  .did:hover{background:#E5E5EA}
   /* Badges */
   .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600}
   .badge.premium{background:#E8F9EE;color:#34C759}
@@ -943,7 +945,6 @@ function renderUsersTable(users) {
     const joined = u.created_at ? new Date(u.created_at).toLocaleDateString('de-DE') : '—';
     const mb = (u.free_mb_used || 0).toFixed(1);
     const photos = u.free_photos_cleaned || 0;
-    const shortId = u.device_id.length > 20 ? u.device_id.substring(0,20) + '…' : u.device_id;
     const toggleBtn = isPremium
       ? `<button class="action-btn deactivate" onclick="setPremium('${u.device_id}', false, null)">⛔ Deaktivieren</button>`
       : `<select class="plan-select" id="plan-${u.device_id.replace(/[^a-z0-9]/gi,'_')}">
@@ -952,7 +953,7 @@ function renderUsersTable(users) {
          </select>
          <button class="action-btn activate" onclick="setPremiumWithPlan('${u.device_id}')">✓ Aktivieren</button>`;
     return `<tr>
-      <td><span class="did" title="${u.device_id}">${shortId}</span></td>
+      <td><span class="did" title="Klick zum Kopieren: ${u.device_id}" onclick="copyId('${u.device_id}')">${u.device_id}</span></td>
       <td>${badge}</td>
       <td>${photos}</td>
       <td>${mb} MB</td>
@@ -1024,7 +1025,7 @@ async function loadSessions() {
     }
     body.innerHTML = d.sessions.map(s => {
       const t = s.timestamp ? new Date(s.timestamp).toLocaleString('de-DE') : '—';
-      const shortId = (s.device_id || '').substring(0, 18) + '…';
+      const shortId = (s.device_id || '').substring(0, 26) + '…';
       return `<tr class="session-row">
         <td>${t}</td>
         <td><span class="did" title="${s.device_id}">${shortId}</span></td>
@@ -1034,6 +1035,11 @@ async function loadSessions() {
       </tr>`;
     }).join('');
   } catch(e) { toast('Fehler beim Laden der Sessions', false); }
+}
+
+// ─── Copy ID ─────────────────────────────────────────────────
+function copyId(id) {
+  navigator.clipboard.writeText(id).then(() => toast('✓ ID kopiert: ' + id.substring(0,16) + '…'));
 }
 
 // ─── Init ────────────────────────────────────────────────────
