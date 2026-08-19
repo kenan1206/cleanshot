@@ -205,7 +205,7 @@ export default function Paywall() {
 
         <Animated.View entering={FadeInDown.duration(500).delay(300)} style={{ marginTop: 24, gap: 12 }}>
           {/* 🔥 Countdown-Banner */}
-          {isOfferActive && offerPackage && (
+          {isOfferActive && (
             <View style={styles.offerBanner}>
               <LinearGradient colors={["#FF6B00", "#FF3B30"]} start={{x:0,y:0}} end={{x:1,y:0}} style={StyleSheet.absoluteFill} />
               <Ionicons name="flame" size={18} color="#fff" />
@@ -233,11 +233,11 @@ export default function Paywall() {
             onPress={() => { Haptics.selectionAsync().catch(() => {}); setPlan("lifetime"); }}
             title={tr("paywall.plan_lifetime_title")}
             price={lifetimePackage?.product.priceString ?? (isOfferActive ? "19,99 €" : tr("paywall.plan_lifetime_price"))}
-            originalPrice={isOfferActive && offerPackage && regularLifetimePackage ? regularLifetimePackage.product.priceString ?? tr("paywall.plan_lifetime_price") : undefined}
+            originalPrice={isOfferActive ? (regularLifetimePackage?.product.priceString ?? tr("paywall.plan_lifetime_price")) : undefined}
             perLabel={tr("paywall.plan_lifetime_per")}
             perDay={tr("paywall.plan_lifetime_sub")}
-            badge={isOfferActive && offerPackage ? tr("paywall.offer_badge") : tr("paywall.plan_lifetime_badge")}
-            isOffer={isOfferActive && !!offerPackage}
+            badge={isOfferActive ? tr("paywall.offer_badge") : tr("paywall.plan_lifetime_badge")}
+            isOffer={isOfferActive}
             testID="paywall-plan-lifetime"
           />
           <PlanCard
@@ -277,8 +277,8 @@ export default function Paywall() {
               isPremium
                 ? tr("paywall.already_premium")
                 : plan === "lifetime"
-                  ? isOfferActive && offerPackage
-                    ? `${tr("paywall.continue_lifetime_offer")} · ${offerPackage.product.priceString}`
+                  ? isOfferActive
+                    ? `${tr("paywall.continue_lifetime_offer")} · ${lifetimePackage?.product.priceString ?? "19,99 €"}`
                     : tr("paywall.continue_lifetime")
                   : tr("paywall.continue_weekly_trial")
             }
