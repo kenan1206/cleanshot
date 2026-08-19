@@ -401,7 +401,9 @@
     "upgrade": "Upgrade naar Premium",
     "continue": "Doorgaan met opruimen",
     "share": "Deel je overwinning",
-    "share_message": "Ik heb net {{size}} vrijgemaakt op mijn iPhone met CleanU! 🚀"
+    "share_message": "Ik heb net {{size}} vrijgemaakt op mijn iPhone met CleanU! 🚀",
+    "trash_hint_title": "Vergeet de prullenbak niet!",
+    "trash_hint_sub": "Foto's → Albums → Onlangs verwijderd → definitief verwijderen"
   },
   "history": {
     "eyebrow": "JOUW OVERWINNINGEN",

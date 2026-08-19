@@ -401,7 +401,9 @@
     "upgrade": "Premium'a Yükselt",
     "continue": "Temizlemeye devam et",
     "share": "Zaferini paylaş",
-    "share_message": "iPhone'umda CleanU ile {{size}} boşalttım! 🚀"
+    "share_message": "iPhone'umda CleanU ile {{size}} boşalttım! 🚀",
+    "trash_hint_title": "Çöpü unutma!",
+    "trash_hint_sub": "Fotoğraflar → Albümler → Son Silinenler → kalıcı olarak sil"
   },
   "history": {
     "eyebrow": "ZAFERLERİN",

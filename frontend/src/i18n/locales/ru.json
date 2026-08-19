@@ -427,7 +427,9 @@
     "upgrade": "Улучшить до Premium",
     "continue": "Продолжить очистку",
     "share": "Поделитесь своей победой",
-    "share_message": "Я только что освободил(а) {{size}} на своём iPhone с помощью CleanU! 🚀"
+    "share_message": "Я только что освободил(а) {{size}} на своём iPhone с помощью CleanU! 🚀",
+    "trash_hint_title": "Не забудь корзину!",
+    "trash_hint_sub": "Фото → Альбомы → Недавно удалённые → удалить насовсем"
   },
   "history": {
     "eyebrow": "ВАШИ ПОБЕДЫ",

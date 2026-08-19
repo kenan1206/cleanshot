@@ -401,7 +401,9 @@
     "upgrade": "Fazer upgrade Premium",
     "continue": "Continuar limpando",
     "share": "Compartilhe sua vitória",
-    "share_message": "Acabei de liberar {{size}} no meu iPhone com o CleanU! 🚀"
+    "share_message": "Acabei de liberar {{size}} no meu iPhone com o CleanU! 🚀",
+    "trash_hint_title": "Não esqueça a lixeira!",
+    "trash_hint_sub": "Fotos → Álbuns → Apagados recentemente → apagar definitivamente"
   },
   "history": {
     "eyebrow": "SUAS VITÓRIAS",

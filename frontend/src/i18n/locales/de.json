@@ -401,7 +401,9 @@
     "upgrade": "Auf Premium upgraden",
     "continue": "Weiter aufräumen",
     "share": "Deinen Erfolg teilen",
-    "share_message": "Ich habe gerade {{size}} auf meinem iPhone mit CleanU freigegeben! 🚀"
+    "share_message": "Ich habe gerade {{size}} auf meinem iPhone mit CleanU freigegeben! 🚀",
+    "trash_hint_title": "Papierkorb nicht vergessen!",
+    "trash_hint_sub": "Fotos → Alben → Zuletzt gelöscht → endgültig löschen"
   },
   "history": {
     "eyebrow": "DEINE ERFOLGE",

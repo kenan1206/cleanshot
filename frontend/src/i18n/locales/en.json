@@ -401,7 +401,9 @@
     "upgrade": "Upgrade to Premium",
     "continue": "Keep cleaning",
     "share": "Share your win",
-    "share_message": "I just freed up {{size}} on my iPhone with CleanU! 🚀"
+    "share_message": "I just freed up {{size}} on my iPhone with CleanU! 🚀",
+    "trash_hint_title": "Don't forget the trash!",
+    "trash_hint_sub": "Photos → Albums → Recently Deleted → delete permanently"
   },
   "history": {
     "eyebrow": "YOUR WINS",

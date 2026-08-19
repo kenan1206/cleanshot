@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Share } from "react-native";
+import { View, Text, StyleSheet, Share, Linking, Pressable } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -114,6 +114,26 @@ export default function Success() {
               </View>
             </Animated.View>
           )}
+
+          {/* Papierkorb-Hinweis */}
+          {cleanedCount > 0 && (
+            <Animated.View entering={FadeIn.duration(400).delay(800)} style={{ marginTop: 16, width: "100%" }}>
+              <Pressable
+                onPress={() => Linking.openURL("photos-redirect://")}
+                testID="success-trash-hint"
+                style={({ pressed }) => [styles.trashHint, { opacity: pressed ? 0.85 : 1 }]}
+              >
+                <View style={styles.trashHintIcon}>
+                  <Ionicons name="trash-outline" size={22} color="#FF9500" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.trashHintTitle}>{tr("success.trash_hint_title")}</Text>
+                  <Text style={styles.trashHintSub}>{tr("success.trash_hint_sub")}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color="#FF9500" />
+              </Pressable>
+            </Animated.View>
+          )}
         </View>
 
         <Animated.View entering={FadeInDown.duration(400).delay(600)} style={{ gap: 10 }}>
@@ -175,5 +195,35 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 14,
     borderWidth: 1,
+  },
+  trashHint: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    backgroundColor: "rgba(255,149,0,0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(255,149,0,0.3)",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  trashHintIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,149,0,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  trashHintTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#FF9500",
+    marginBottom: 2,
+  },
+  trashHintSub: {
+    fontSize: 12,
+    color: "#8E8E93",
+    lineHeight: 16,
   },
 });

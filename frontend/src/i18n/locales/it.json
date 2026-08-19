@@ -401,7 +401,9 @@
     "upgrade": "Passa a Premium",
     "continue": "Continua a pulire",
     "share": "Condividi la tua vittoria",
-    "share_message": "Ho appena liberato {{size}} sul mio iPhone con CleanU! 🚀"
+    "share_message": "Ho appena liberato {{size}} sul mio iPhone con CleanU! 🚀",
+    "trash_hint_title": "Non dimenticare il cestino!",
+    "trash_hint_sub": "Foto → Album → Eliminati di recente → elimina definitivamente"
   },
   "history": {
     "eyebrow": "LE TUE VITTORIE",

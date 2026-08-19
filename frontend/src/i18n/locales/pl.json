@@ -427,7 +427,9 @@
     "upgrade": "Aktualizuj do Premium",
     "continue": "Kontynuuj czyszczenie",
     "share": "Podziel się swoim zwycięstwem",
-    "share_message": "Właśnie zwolniłem {{size}} na moim iPhone dzięki CleanU! 🚀"
+    "share_message": "Właśnie zwolniłem {{size}} na moim iPhone dzięki CleanU! 🚀",
+    "trash_hint_title": "Nie zapomnij o koszu!",
+    "trash_hint_sub": "Zdjęcia → Albumy → Ostatnio usunięte → usuń trwale"
   },
   "history": {
     "eyebrow": "TWOJE ZWYCIĘSTWA",
