@@ -532,7 +532,7 @@ async def screenshot_slide5():
 
 @app.get("/api/download/slide5", include_in_schema=False)
 async def download_slide5():
-    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide5_1242x2688.png"
+    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide5_de_1242x2688.png"
     if png.exists():
         return FileResponse(str(png), media_type="image/png", filename="cleanu_kontakte_1242x2688.png")
     return HTMLResponse(content="Not found", status_code=404)
@@ -547,7 +547,7 @@ async def screenshot_slide4():
 
 @app.get("/api/download/slide4", include_in_schema=False)
 async def download_slide4():
-    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide4_1242x2688.png"
+    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide4_de_1242x2688.png"
     if png.exists():
         return FileResponse(str(png), media_type="image/png", filename="cleanu_videos_1242x2688.png")
     return HTMLResponse(content="Not found", status_code=404)
@@ -563,14 +563,14 @@ async def screenshot_slide3():
 
 @app.get("/api/download/slide3", include_in_schema=False)
 async def download_slide3():
-    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide3_1242x2688.png"
+    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide3_de_1242x2688.png"
     if png.exists():
         return FileResponse(str(png), media_type="image/png", filename="cleanu_chatfotos_1242x2688.png")
     return HTMLResponse(content="Not found", status_code=404)
 
 @app.get("/api/download/slide1", include_in_schema=False)
 async def download_slide1():
-    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide1_1242x2688.png"
+    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide1_de_1242x2688.png"
     if png.exists():
         return FileResponse(str(png), media_type="image/png", filename="cleanu_features_1242x2688.png")
     return HTMLResponse(content="Not found", status_code=404)
@@ -578,7 +578,7 @@ async def download_slide1():
 
 @app.get("/api/download/slide2", include_in_schema=False)
 async def download_slide2():
-    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide2_1242x2688.png"
+    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide2_de_1242x2688.png"
     if png.exists():
         return FileResponse(str(png), media_type="image/png", filename="cleanu_duplikate_1242x2688.png")
     return HTMLResponse(content="Not found", status_code=404)
