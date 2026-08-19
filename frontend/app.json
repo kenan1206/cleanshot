@@ -28,6 +28,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.kenanplayer.cleanu",
       "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "Scan and free up space in your photo library",
         "NSPhotoLibraryAddUsageDescription": "Save compressed versions of your photos",
         "NSContactsUsageDescription": "Find duplicate and incomplete contacts",

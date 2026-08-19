@@ -530,6 +530,28 @@ async def screenshot_slide5():
         return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
     return HTMLResponse(content="<h1>Not found</h1>", status_code=404)
 
+@app.get("/api/download/ipad-slide1", include_in_schema=False)
+async def download_ipad_slide1():
+    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_ipad_slide1_de_2048x2732.png"
+    if png.exists():
+        return FileResponse(str(png), media_type="image/png", filename="cleanu_ipad_de_2048x2732.png")
+    return HTMLResponse(content="Not found", status_code=404)
+
+@app.get("/api/download/ipad-slide1-en", include_in_schema=False)
+async def download_ipad_slide1_en():
+    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_ipad_slide1_en_2048x2732.png"
+    if png.exists():
+        return FileResponse(str(png), media_type="image/png", filename="cleanu_ipad_en_2048x2732.png")
+    return HTMLResponse(content="Not found", status_code=404)
+
+@app.get("/api/download/ipad-slide1-tr", include_in_schema=False)
+async def download_ipad_slide1_tr():
+    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_ipad_slide1_tr_2048x2732.png"
+    if png.exists():
+        return FileResponse(str(png), media_type="image/png", filename="cleanu_ipad_tr_2048x2732.png")
+    return HTMLResponse(content="Not found", status_code=404)
+
+
 @app.get("/api/download/iap-lifetime", include_in_schema=False)
 async def download_iap_lifetime():
     png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_iap_lifetime_1242x2688.png"
