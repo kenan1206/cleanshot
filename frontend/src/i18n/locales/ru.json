@@ -196,7 +196,8 @@
     "quota_photos": "{{used}}/{{limit}} фото",
     "quota_title": "Бесплатный лимит",
     "flash_title": "🔥 Акция истекает!",
-    "flash_sub": "Lifetime за 19,99 € — ограниченное время"
+    "flash_sub": "Lifetime за 19,99 € — ограниченное время",
+    "scan_now": "Сканировать"
   },
   "categories": {
     "similar_screenshots_title": "Похожие скриншоты",

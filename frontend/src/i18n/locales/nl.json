@@ -188,7 +188,8 @@
     "quota_photos": "{{used}}/{{limit}} foto's",
     "quota_title": "Gratis tegoed",
     "flash_title": "🔥 Aanbieding verloopt!",
-    "flash_sub": "Lifetime voor €19,99 — beperkte tijd"
+    "flash_sub": "Lifetime voor €19,99 — beperkte tijd",
+    "scan_now": "Nu scannen"
   },
   "categories": {
     "similar_screenshots_title": "Vergelijkbare screenshots",

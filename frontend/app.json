@@ -24,6 +24,7 @@
       "ru": "./src/i18n/locales/ru.json"
     },
     "ios": {
+      "buildNumber": "1",
       "supportsTablet": true,
       "bundleIdentifier": "com.kenanplayer.cleanu",
       "infoPlist": {

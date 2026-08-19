@@ -188,7 +188,8 @@
     "quota_photos": "{{used}}/{{limit}} fotos",
     "quota_title": "Quota gratuita",
     "flash_title": "🔥 Oferta a terminar!",
-    "flash_sub": "Vitalício por 19,99 € — tempo limitado"
+    "flash_sub": "Vitalício por 19,99 € — tempo limitado",
+    "scan_now": "Escanear agora"
   },
   "categories": {
     "similar_screenshots_title": "Capturas semelhantes",

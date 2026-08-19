@@ -196,7 +196,8 @@
     "quota_photos": "{{used}}/{{limit}} zdjęć",
     "quota_title": "Darmowy limit",
     "flash_title": "🔥 Oferta wygasa!",
-    "flash_sub": "Dożywotni za 19,99 € — ograniczony czas"
+    "flash_sub": "Dożywotni za 19,99 € — ograniczony czas",
+    "scan_now": "Skanuj teraz"
   },
   "categories": {
     "similar_screenshots_title": "Podobne zrzuty ekranu",

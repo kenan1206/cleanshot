@@ -188,7 +188,8 @@
     "quota_photos": "{{used}}/{{limit}} photos",
     "quota_title": "Quota gratuit",
     "flash_title": "🔥 Offre se termine !",
-    "flash_sub": "À vie pour 19,99 € — temps limité"
+    "flash_sub": "À vie pour 19,99 € — temps limité",
+    "scan_now": "Scanner maintenant"
   },
   "categories": {
     "similar_screenshots_title": "Captures similaires",

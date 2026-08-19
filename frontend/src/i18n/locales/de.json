@@ -163,7 +163,7 @@
     "items_scanned": "{{count}} Elemente gescannt",
     "scanning_status": "Scanne...",
     "tap_scan": "Tippe auf Scan, um zu starten",
-    "scan_button": "Mediathek scannen",
+    "scan_now": "Jetzt scannen",
     "analyzing": "Analysiere deine Mediathek…",
     "enable_title": "Fotos-Zugriff aktivieren",
     "enable_sub": "CleanU benötigt Zugriff auf deine Fotomediathek, um Aufräum-Möglichkeiten zu finden.",

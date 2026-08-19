@@ -163,7 +163,7 @@
     "items_scanned": "{{count}} items scanned",
     "scanning_status": "Scanning...",
     "tap_scan": "Tap Scan to start",
-    "scan_button": "Scan my library",
+    "scan_now": "Scan now",
     "analyzing": "Analyzing your library…",
     "enable_title": "Enable Photos Access",
     "enable_sub": "CleanU needs access to your photo library to scan for cleanup opportunities.",
