@@ -160,7 +160,7 @@ export default function Start() {
       {/* ── Fixed Header ── */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.appName}>✦ CleanU</Text>
+          <Text style={styles.appName}>{isPremium ? "✦ CleanU Pro" : "✦ CleanU"}</Text>
         </View>
         <View style={styles.headerRight}>
           {!user?.is_premium && (

@@ -60,14 +60,12 @@ export default function Settings() {
 
         {/* ── Gratis-Kontingent / Premium Bar ── */}
         {user?.is_premium ? (
-          <View style={[styles.quotaCard, { backgroundColor: t.mode === "dark" ? "rgba(28,28,30,0.6)" : "#F5F7FF" }]}>
-            <View style={styles.quotaHeaderRow}>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                <Ionicons name="diamond" size={16} color={t.colors.brandPrimary} />
-                <Text style={[styles.quotaTitle, { color: t.colors.onSurface }]}>{tr("settings.premium_name")}</Text>
-              </View>
-              <Text style={[styles.quotaValue, { color: t.colors.brandPrimary }]}>
-                {user.plan === "lifetime" ? tr("settings.plan_lifetime_label") : tr("settings.plan_weekly_label")}
+          <View style={[styles.proCard, { backgroundColor: t.mode === "dark" ? "rgba(28,28,30,0.6)" : "#EEF2FF" }]}>
+            <View style={styles.proCardInner}>
+              <Ionicons name="diamond" size={28} color="#007AFF" style={{ marginBottom: 6 }} />
+              <Text style={[styles.proCardTitle, { color: "#007AFF" }]}>CleanU Pro</Text>
+              <Text style={[styles.proCardPlan, { color: t.colors.onSurfaceTertiary }]}>
+                {user.plan === "lifetime" ? "Lifetime · einmalige Zahlung" : "Weekly · 4,99 €/Woche"}
               </Text>
             </View>
           </View>
@@ -264,6 +262,25 @@ function Divider() {
 }
 
 const styles = StyleSheet.create({
+  proCard: {
+    borderRadius: 18,
+    paddingVertical: 28,
+    paddingHorizontal: 20,
+    borderWidth: 1.5,
+    borderColor: "rgba(0,122,255,0.2)",
+    alignItems: "center",
+  },
+  proCardInner: { alignItems: "center" },
+  proCardTitle: {
+    fontSize: 28,
+    fontWeight: "900",
+    letterSpacing: -0.5,
+    marginBottom: 6,
+  },
+  proCardPlan: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
   quotaCard: {
     borderRadius: 14,
     paddingHorizontal: 14,
