@@ -62,15 +62,15 @@ export default function Start() {
   useEffect(() => { isPremiumRef.current = isPremium; }, [isPremium]);
 
   useFocusEffect(useCallback(() => {
-    // Warte bis RC fertig geladen, dann nochmal prüfen ob wirklich Free
-    if (rc.isLoading || isPremium || upsellShownRef.current) return;
+    // Kein Modal während Onboarding + warten bis RC geladen
+    if (!user?.onboarded || rc.isLoading || isPremium || upsellShownRef.current) return;
     upsellShownRef.current = true;
     const timer = setTimeout(() => {
       // Nochmal prüfen — RC könnte zwischenzeitlich geladen haben
       if (!isPremiumRef.current) setShowUpsell(true);
-    }, 1500);
+    }, 5000);
     return () => clearTimeout(timer);
-  }, [isPremium, rc.isLoading]));
+  }, [user?.onboarded, isPremium, rc.isLoading]));
 
   const scan = useCallback(async () => {
     setScanning(true);
