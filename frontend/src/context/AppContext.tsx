@@ -5,11 +5,12 @@ import { storage } from "@/src/utils/storage";
 import { api } from "@/src/api/client";
 
 const DEVICE_ID_KEY = "cleanu.device_id";
-// Local mirror of the onboarded flag so the app works offline-first: onboarding must
-// never depend on (or wait for) the backend.
 const ONBOARDED_KEY = "cleanu.onboarded";
-// Locally-persisted usage counters — the source of truth that survives app kills,
-// restarts and updates even when the backend sync fails (fire-and-forget can drop).
+// Premium-Status lokal cachen — überlebt Netzwerkausfälle + wirkt sofort nach Admin-Aktivierung
+const PREMIUM_KEY = "cleanu.is_premium";
+const LIFETIME_KEY = "cleanu.is_lifetime";
+const PLAN_KEY    = "cleanu.plan";
+
 const COUNTER_KEYS = {
   free_mb_used: "cleanu.free_mb_used",
   free_photos_cleaned: "cleanu.free_photos_cleaned",
@@ -17,6 +18,12 @@ const COUNTER_KEYS = {
   free_live_still_used: "cleanu.free_live_still_used",
   free_contacts_used: "cleanu.free_contacts_used",
 } as const;
+
+function persistPremium(u: Partial<UserState>) {
+  storage.setItem(PREMIUM_KEY, !!u.is_premium).catch(() => {});
+  storage.setItem(LIFETIME_KEY, !!u.is_lifetime).catch(() => {});
+  storage.setItem(PLAN_KEY, u.plan ?? null).catch(() => {});
+}
 
 function persistCounters(u: Partial<UserState>) {
   (Object.keys(COUNTER_KEYS) as (keyof typeof COUNTER_KEYS)[]).forEach((k) => {
@@ -41,7 +48,6 @@ async function loadLocalCounters() {
     free_contacts_used: ct ?? 0,
   };
 }
-
 export type UserState = {
   device_id: string;
   is_premium: boolean;
@@ -134,20 +140,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       const merged: UserState = {
         ...su,
-        // Counters: bei Admin-Reset Server vertrauen, sonst lokalen Max behalten
         free_mb_used: adminReset ? 0 : Math.max(su.free_mb_used ?? 0, prev?.free_mb_used ?? 0),
         free_photos_cleaned: adminReset ? 0 : Math.max(su.free_photos_cleaned ?? 0, prev?.free_photos_cleaned ?? 0),
         free_video_compress_used: adminReset ? 0 : Math.max(su.free_video_compress_used ?? 0, prev?.free_video_compress_used ?? 0),
         free_live_still_used: adminReset ? 0 : Math.max(su.free_live_still_used ?? 0, prev?.free_live_still_used ?? 0),
         free_contacts_used: adminReset ? 0 : Math.max(su.free_contacts_used ?? 0, prev?.free_contacts_used ?? 0),
-        // Premium: Server hat IMMER Vorrang (Admin-Aktivierung muss greifen)
+        // Premium: Server hat IMMER Vorrang
         is_premium: su.is_premium,
         is_lifetime: su.is_lifetime,
         plan: su.plan,
-        // Onboarding: lokale Flag hat Vorrang
         onboarded: prev?.onboarded || false,
       };
       persistCounters(merged);
+      persistPremium(merged); // Premium lokal cachen
       return merged;
     });
   }, []);
@@ -176,16 +181,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const id = await getOrCreateDeviceId();
       setDeviceId(id);
       const localOnboarded = await storage.getItem<boolean>(ONBOARDED_KEY, false);
+      // Gecachten Premium-Status laden (wirkt sofort, auch bei langsamem Netz)
+      const localPremium   = await storage.getItem<boolean>(PREMIUM_KEY, false);
+      const localLifetime  = await storage.getItem<boolean>(LIFETIME_KEY, false);
+      const localPlan      = await storage.getItem<string | null>(PLAN_KEY, null);
       const local = await loadLocalCounters();
       try {
         const res = await api.post<UserState>("/users/init", { device_id: id });
-        // Merge server + locally-persisted counters (max wins → never resets on restart).
         const merged: UserState = {
           ...res,
-          // Lokale Flag ist Source of Truth für Onboarding:
-          // - Frische Installation (AsyncStorage geleert): localOnboarded = false → Onboarding zeigen
-          // - Normaler Neustart / Update: localOnboarded = true → Onboarding überspringen
-          // Backend-Flag wird NICHT verwendet, damit Reinstall immer Onboarding zeigt
           onboarded: localOnboarded ?? false,
           free_mb_used: Math.max(res.free_mb_used ?? 0, local.free_mb_used),
           free_photos_cleaned: Math.max(res.free_photos_cleaned ?? 0, local.free_photos_cleaned),
@@ -195,8 +199,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         };
         setUser(merged);
         persistCounters(merged);
-        // If local was ahead of the server (a prior sync failed), push the reconciled
-        // values back so the backend catches up.
+        persistPremium(merged); // Cache aktualisieren
         if (
           !merged.is_premium &&
           (local.free_mb_used > (res.free_mb_used ?? 0) ||
@@ -209,10 +212,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           }
         }
       } catch {
-        // Backend unreachable — boot from locally-persisted counters so nothing resets.
+        // Backend nicht erreichbar → gecachten Premium-Status nutzen (kein is_premium: false hardcoded!)
         setUser({
           device_id: id,
-          is_premium: false,
+          is_premium: localPremium ?? false,
+          is_lifetime: localLifetime ?? false,
+          plan: localPlan ?? undefined,
           onboarded: localOnboarded ?? false,
           ...local,
         });
