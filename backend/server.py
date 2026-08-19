@@ -453,6 +453,21 @@ async def screenshot_slide2():
     return HTMLResponse(content="<h1>Not found</h1>", status_code=404)
 
 
+@app.get("/api/screenshot-slide4", response_class=HTMLResponse, include_in_schema=False)
+async def screenshot_slide4():
+    html_path = Path(__file__).parent.parent / "frontend" / "assets" / "screenshot_slide4.html"
+    if html_path.exists():
+        return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Not found</h1>", status_code=404)
+
+@app.get("/api/download/slide4", include_in_schema=False)
+async def download_slide4():
+    png = Path(__file__).parent.parent / "frontend" / "assets" / "cleanu_slide4_4k.png"
+    if png.exists():
+        return FileResponse(str(png), media_type="image/png", filename="cleanu_slide4_videos.png")
+    return HTMLResponse(content="Not found", status_code=404)
+
+
 @app.get("/api/screenshot-slide3", response_class=HTMLResponse, include_in_schema=False)
 async def screenshot_slide3():
     html_path = Path(__file__).parent.parent / "frontend" / "assets" / "screenshot_slide3.html"

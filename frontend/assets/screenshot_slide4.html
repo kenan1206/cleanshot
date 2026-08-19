@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=393">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    background: #1a1a2e;
+    display: flex; justify-content: center;
+    min-height: 852px;
+  }
+  .phone {
+    width: 393px; min-height: 852px;
+    background: linear-gradient(160deg, #6494ff 0%, #5383ff 45%, #4070f0 100%);
+    position: relative; overflow: hidden;
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  }
+  .bg1 {
+    position: absolute; top: -80px; right: -60px;
+    width: 280px; height: 280px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.13) 0%, transparent 65%);
+  }
+  .bg2 {
+    position: absolute; bottom: -60px; left: -40px;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(20,10,100,0.3) 0%, transparent 65%);
+  }
+  .inner {
+    position: relative; z-index: 1;
+    padding: 52px 22px 44px;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0;
+  }
+
+  /* Header */
+  .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: #FFD166;
+    margin-bottom: 4px; text-align: center;
+  }
+  .title {
+    font-size: 64px; font-weight: 800; color: #fff;
+    letter-spacing: -3px; line-height: 1;
+    margin-bottom: 28px; text-align: center;
+  }
+
+  /* Split image card */
+  .split-card {
+    width: 100%;
+    border-radius: 28px; overflow: hidden;
+    position: relative;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.2);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    background: #333;
+    aspect-ratio: 4/5;
+    margin-bottom: 28px;
+  }
+
+  /* Left half — blurred/low quality (original large) */
+  .half-left {
+    position: absolute; top: 0; left: 0;
+    width: 50%; height: 100%;
+    overflow: hidden;
+  }
+  .half-left img {
+    position: absolute; top: 0; left: 0;
+    width: 200%; height: 100%;
+    object-fit: cover;
+    filter: blur(2px) saturate(0.75) brightness(0.88);
+  }
+  /* dim overlay */
+  .half-left::after {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(255,59,48,0.1);
+  }
+
+  /* Right half — sharp (compressed) */
+  .half-right {
+    position: absolute; top: 0; right: 0;
+    width: 50%; height: 100%;
+    overflow: hidden;
+  }
+  .half-right img {
+    position: absolute; top: 0; right: 0;
+    width: 200%; height: 100%;
+    object-fit: cover;
+    filter: saturate(1.08) brightness(1.02);
+  }
+  .half-right::after {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(52,199,89,0.06);
+  }
+
+  /* Center divider line */
+  .divider-line {
+    position: absolute; top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 3px; height: 100%;
+    background: #fff;
+    box-shadow: 0 0 12px rgba(255,255,255,0.9);
+    z-index: 3;
+  }
+  /* Divider handle */
+  .divider-handle {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    z-index: 4;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: #5383ff; font-weight: 800;
+  }
+
+  /* Size labels on photo */
+  .label-orig {
+    position: absolute; bottom: 16px; left: 16px;
+    background: rgba(255,59,48,0.85); backdrop-filter: blur(8px);
+    border-radius: 10px; padding: 5px 10px;
+    font-size: 13px; font-weight: 800; color: #fff;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .label-comp {
+    position: absolute; bottom: 16px; right: 16px;
+    background: rgba(52,199,89,0.85); backdrop-filter: blur(8px);
+    border-radius: 10px; padding: 5px 10px;
+    font-size: 13px; font-weight: 800; color: #fff;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  /* Size comparison row */
+  .size-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 16px; margin-bottom: 28px;
+    width: 100%;
+  }
+  .size-orig {
+    font-size: 40px; font-weight: 900; color: #FF3B30;
+    letter-spacing: -1.5px;
+  }
+  .size-arrow {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .arrow-line {
+    width: 52px; height: 3px;
+    background: linear-gradient(to right, #FF3B30, #34C759);
+    border-radius: 2px; position: relative;
+  }
+  .arrow-line::after {
+    content: '';
+    position: absolute; right: -1px; top: 50%;
+    transform: translateY(-50%);
+    border-left: 10px solid #34C759;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+  }
+  .arrow-label {
+    font-size: 10px; font-weight: 600;
+    color: rgba(255,255,255,0.6); letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .size-comp {
+    font-size: 40px; font-weight: 900; color: #34C759;
+    letter-spacing: -1.5px;
+  }
+
+  /* Savings pill */
+  .savings-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(52,199,89,0.15);
+    border: 1px solid rgba(52,199,89,0.35);
+    border-radius: 100px; padding: 8px 20px;
+  }
+  .savings-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #34C759;
+    box-shadow: 0 0 8px rgba(52,199,89,0.8);
+  }
+  .savings-text {
+    font-size: 15px; font-weight: 700; color: #34C759;
+    letter-spacing: 0.2px;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="bg1"></div>
+  <div class="bg2"></div>
+
+  <div class="inner">
+    <div class="eyebrow">Komprimiere</div>
+    <div class="title">Videos</div>
+
+    <!-- Split image -->
+    <div class="split-card">
+      <div class="half-left">
+        <img src="https://images.unsplash.com/photo-1679043871333-b785bd519ad3?crop=entropy&cs=srgb&fm=jpg&w=700&q=60" />
+      </div>
+      <div class="half-right">
+        <img src="https://images.unsplash.com/photo-1679043871333-b785bd519ad3?crop=entropy&cs=srgb&fm=jpg&w=700&q=85" />
+      </div>
+      <div class="divider-line"></div>
+      <div class="divider-handle">⇄</div>
+      <div class="label-orig">Vorher</div>
+      <div class="label-comp">Nachher</div>
+    </div>
+
+    <!-- Size comparison -->
+    <div class="size-row">
+      <span class="size-orig">134 MB</span>
+      <div class="size-arrow">
+        <div class="arrow-line"></div>
+        <span class="arrow-label">spart</span>
+      </div>
+      <span class="size-comp">58 MB</span>
+    </div>
+
+    <!-- Savings badge -->
+    <div class="savings-pill">
+      <div class="savings-dot"></div>
+      <span class="savings-text">57% kleiner — keine Qualitätseinbuße</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
