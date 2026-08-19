@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=393">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    background: #1a1a2e;
+    display: flex; justify-content: center;
+    min-height: 852px;
+  }
+  .phone {
+    width: 100%; min-height: 852px;
+    background: linear-gradient(160deg, #6494ff 0%, #5383ff 45%, #4070f0 100%);
+    position: relative; overflow: hidden;
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  }
+  .bg1 {
+    position: absolute; top: -100px; right: -60px;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.14) 0%, transparent 65%);
+  }
+  .bg2 {
+    position: absolute; bottom: -80px; left: -50px;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(20,10,100,0.3) 0%, transparent 65%);
+  }
+  .inner {
+    position: relative; z-index: 1;
+    padding: 48px 20px 36px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+
+  /* Header */
+  .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: #FFD166;
+    margin-bottom: 4px; text-align: center;
+  }
+  .title {
+    font-size: 50px; font-weight: 800; color: #fff;
+    letter-spacing: -2px; line-height: 1;
+    margin-bottom: 26px; text-align: center;
+  }
+
+  /* Contact card */
+  .card {
+    width: 100%;
+    background: rgba(255,255,255,0.95);
+    border-radius: 22px;
+    padding: 16px 16px 14px;
+    margin-bottom: 12px;
+    box-shadow:
+      0 16px 48px rgba(0,0,0,0.22),
+      0 4px 12px rgba(0,0,0,0.12);
+    border: 1px solid rgba(255,255,255,0.9);
+    position: relative;
+    overflow: hidden;
+  }
+  /* Active card highlight */
+  .card.active {
+    border: 2px solid #5383ff;
+    box-shadow:
+      0 20px 56px rgba(83,131,255,0.3),
+      0 4px 16px rgba(0,0,0,0.14),
+      inset 0 0 0 1px rgba(83,131,255,0.1);
+  }
+  .card.active::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(to right, #5383ff, #7aa4ff);
+    border-radius: 22px 22px 0 0;
+  }
+
+  /* Badge: "2 KONTAKTE MIT GLEICHEM NAMEN" */
+  .card-badge {
+    font-size: 9.5px; font-weight: 700;
+    letter-spacing: 1.2px; text-transform: uppercase;
+    color: #8E8E93; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .card-badge::before {
+    content: '';
+    display: inline-block;
+    width: 16px; height: 1px;
+    background: #C7C7CC;
+  }
+
+  /* Contact row */
+  .contact-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 0;
+  }
+  .contact-row + .contact-row {
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+
+  /* Avatar */
+  .avatar {
+    width: 46px; height: 46px; border-radius: 23px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 800; color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  }
+
+  .contact-info { flex: 1; min-width: 0; }
+  .contact-name {
+    font-size: 17px; font-weight: 700; color: #000;
+    letter-spacing: -0.3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .contact-detail {
+    font-size: 13px; color: #8E8E93; font-weight: 400;
+    margin-top: 1px;
+  }
+
+  /* Divider with OR */
+  .or-divider {
+    display: flex; align-items: center; gap: 8px;
+    padding: 2px 0;
+  }
+  .or-line { flex: 1; height: 1px; background: rgba(0,0,0,0.08); }
+  .or-text {
+    font-size: 10px; font-weight: 600; color: #C7C7CC;
+    letter-spacing: 0.5px;
+  }
+
+  /* Birleştir button */
+  .merge-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #5383ff, #4070f0);
+    border-radius: 14px;
+    height: 46px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+    box-shadow: 0 6px 20px rgba(83,131,255,0.4);
+  }
+  .merge-icon { font-size: 17px; }
+  .merge-text {
+    font-size: 15px; font-weight: 700; color: #fff;
+    letter-spacing: -0.2px;
+  }
+
+  /* Saved badge on active card */
+  .saved-badge {
+    position: absolute; top: 14px; right: 14px;
+    background: #34C759;
+    border-radius: 100px; padding: 3px 10px;
+    font-size: 10px; font-weight: 700; color: #fff;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 8px rgba(52,199,89,0.4);
+  }
+
+  /* Bottom counter */
+  .counter {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 100px;
+    padding: 8px 18px;
+    margin-top: 4px;
+  }
+  .counter-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #FFD166;
+    box-shadow: 0 0 8px rgba(255,209,102,0.8);
+  }
+  .counter-text {
+    font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9);
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="bg1"></div>
+  <div class="bg2"></div>
+
+  <div class="inner">
+    <div class="eyebrow">Kopyalanan Kişiler</div>
+    <div class="title">Birleştir</div>
+
+    <!-- Card 1 — Active/Featured -->
+    <div class="card active">
+      <div class="saved-badge">⚡ Algılandı</div>
+      <div class="card-badge">Aynı isimli 2 kişi</div>
+
+      <div class="contact-row">
+        <div class="avatar" style="background: linear-gradient(135deg, #FF9500, #FF6B00);">M</div>
+        <div class="contact-info">
+          <div class="contact-name">Ahmet Yılmaz</div>
+          <div class="contact-detail">+90 532 123 4567</div>
+        </div>
+      </div>
+
+      <div class="or-divider">
+        <div class="or-line"></div>
+        <span class="or-text">KOPYA</span>
+        <div class="or-line"></div>
+      </div>
+
+      <div class="contact-row">
+        <div class="avatar" style="background: linear-gradient(135deg, #FF9500, #FF6B00);">M</div>
+        <div class="contact-info">
+          <div class="contact-name">Ahmet Y. İş</div>
+          <div class="contact-detail">+90 532 123 4567</div>
+        </div>
+      </div>
+
+      <div class="merge-btn">
+        <span class="merge-icon">⇢</span>
+        <span class="merge-text">Birleştir</span>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="card">
+      <div class="card-badge">Aynı isimli 2 kişi</div>
+
+      <div class="contact-row">
+        <div class="avatar" style="background: linear-gradient(135deg, #FF3B30, #C0392B);">B</div>
+        <div class="contact-info">
+          <div class="contact-name">Kemal Arslan</div>
+          <div class="contact-detail">+90 555 987 6543</div>
+        </div>
+      </div>
+
+      <div class="or-divider">
+        <div class="or-line"></div>
+        <span class="or-text">KOPYA</span>
+        <div class="or-line"></div>
+      </div>
+
+      <div class="contact-row">
+        <div class="avatar" style="background: linear-gradient(135deg, #FF3B30, #C0392B);">B</div>
+        <div class="contact-info">
+          <div class="contact-name">Kemal A. Küçük</div>
+          <div class="contact-detail">+90 555 987 6543</div>
+        </div>
+      </div>
+
+      <div class="merge-btn" style="background: linear-gradient(135deg, #5383ff, #4070f0); box-shadow: 0 4px 14px rgba(83,131,255,0.25);">
+        <span class="merge-icon">⇢</span>
+        <span class="merge-text">Birleştir</span>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="card">
+      <div class="card-badge">Aynı isimli 2 kişi</div>
+
+      <div class="contact-row">
+        <div class="avatar" style="background: linear-gradient(135deg, #AF52DE, #8B3DB3);">TD</div>
+        <div class="contact-info">
+          <div class="contact-name">Murat Demir</div>
+          <div class="contact-detail">+90 532 123 4567</div>
+        </div>
+      </div>
+
+      <div class="or-divider">
+        <div class="or-line"></div>
+        <span class="or-text">KOPYA</span>
+        <div class="or-line"></div>
+      </div>
+
+      <div class="contact-row">
+        <div class="avatar" style="background: linear-gradient(135deg, #AF52DE, #8B3DB3);">TD</div>
+        <div class="contact-info">
+          <div class="contact-name">Murat Demir</div>
+          <div class="contact-detail">murat.demir@gmail.com</div>
+        </div>
+      </div>
+
+      <div class="merge-btn" style="background: linear-gradient(135deg, #5383ff, #4070f0); box-shadow: 0 4px 14px rgba(83,131,255,0.25);">
+        <span class="merge-icon">⇢</span>
+        <span class="merge-text">Birleştir</span>
+      </div>
+    </div>
+
+    <!-- Bottom counter -->
+    <div class="counter">
+      <div class="counter-dot"></div>
+      <span class="counter-text">14 kopya grup bulundu</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

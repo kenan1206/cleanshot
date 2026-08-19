@@ -437,6 +437,41 @@ async def get_plans():
     return {"plans": PLAN_PRICES, "free_mb_limit": FREE_MB_LIMIT, "free_photos_limit": FREE_PHOTOS_LIMIT}
 
 
+@app.get("/api/screenshot-slide-tr", response_class=HTMLResponse, include_in_schema=False)
+async def screenshot_slide_tr():
+    p = Path(__file__).parent.parent / "frontend" / "assets" / "screenshot_slide_tr.html"
+    return HTMLResponse(content=p.read_text(encoding="utf-8") if p.exists() else "<h1>Not found</h1>")
+
+@app.get("/api/screenshot-slide2-tr", response_class=HTMLResponse, include_in_schema=False)
+async def screenshot_slide2_tr():
+    p = Path(__file__).parent.parent / "frontend" / "assets" / "screenshot_slide2_tr.html"
+    return HTMLResponse(content=p.read_text(encoding="utf-8") if p.exists() else "<h1>Not found</h1>")
+
+@app.get("/api/screenshot-slide3-tr", response_class=HTMLResponse, include_in_schema=False)
+async def screenshot_slide3_tr():
+    p = Path(__file__).parent.parent / "frontend" / "assets" / "screenshot_slide3_tr.html"
+    return HTMLResponse(content=p.read_text(encoding="utf-8") if p.exists() else "<h1>Not found</h1>")
+
+@app.get("/api/screenshot-slide4-tr", response_class=HTMLResponse, include_in_schema=False)
+async def screenshot_slide4_tr():
+    p = Path(__file__).parent.parent / "frontend" / "assets" / "screenshot_slide4_tr.html"
+    return HTMLResponse(content=p.read_text(encoding="utf-8") if p.exists() else "<h1>Not found</h1>")
+
+@app.get("/api/screenshot-slide5-tr", response_class=HTMLResponse, include_in_schema=False)
+async def screenshot_slide5_tr():
+    p = Path(__file__).parent.parent / "frontend" / "assets" / "screenshot_slide5_tr.html"
+    return HTMLResponse(content=p.read_text(encoding="utf-8") if p.exists() else "<h1>Not found</h1>")
+
+@app.get("/api/download/slide{num}-tr", include_in_schema=False)
+async def download_slide_tr(num: int):
+    names = {1:"features", 2:"duplicates", 3:"chatphotos", 4:"videos", 5:"contacts"}
+    name = names.get(num, f"slide{num}")
+    png = Path(__file__).parent.parent / "frontend" / "assets" / f"cleanu_slide{num}_tr_1242x2688.png"
+    if png.exists():
+        return FileResponse(str(png), media_type="image/png", filename=f"cleanu_{name}_tr_1242x2688.png")
+    return HTMLResponse(content="Not found", status_code=404)
+
+
 @app.get("/api/screenshot-slide-en", response_class=HTMLResponse, include_in_schema=False)
 async def screenshot_slide_en():
     p = Path(__file__).parent.parent / "frontend" / "assets" / "screenshot_slide_en.html"
