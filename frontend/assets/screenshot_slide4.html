@@ -57,39 +57,30 @@
     margin-bottom: 28px;
   }
 
-  /* Left half — blurred/low quality (original large) */
+  /* Split: overflow:hidden Container verhindert Blur-Bleed */
   .half-left {
     position: absolute; top: 0; left: 0;
     width: 50%; height: 100%;
     overflow: hidden;
+    isolation: isolate;
   }
   .half-left img {
     position: absolute; top: 0; left: 0;
-    width: 200%; height: 100%;
+    width: 200%; max-width: none; height: 100%;
     object-fit: cover;
-    filter: blur(2px) saturate(0.75) brightness(0.88);
+    filter: blur(2.5px) saturate(0.65) brightness(0.83);
   }
-  /* dim overlay */
-  .half-left::after {
-    content: ''; position: absolute; inset: 0;
-    background: rgba(255,59,48,0.1);
-  }
-
-  /* Right half — sharp (compressed) */
   .half-right {
     position: absolute; top: 0; right: 0;
     width: 50%; height: 100%;
     overflow: hidden;
+    isolation: isolate;
   }
   .half-right img {
     position: absolute; top: 0; right: 0;
-    width: 200%; height: 100%;
+    width: 200%; max-width: none; height: 100%;
     object-fit: cover;
-    filter: saturate(1.08) brightness(1.02);
-  }
-  .half-right::after {
-    content: ''; position: absolute; inset: 0;
-    background: rgba(52,199,89,0.06);
+    /* vollständig scharf — kein Filter */
   }
 
   /* Center divider line */
@@ -198,7 +189,7 @@
     <!-- Split image -->
     <div class="split-card">
       <div class="half-left">
-        <img src="https://images.unsplash.com/photo-1679043871333-b785bd519ad3?crop=entropy&cs=srgb&fm=jpg&w=700&q=60" />
+        <img src="https://images.unsplash.com/photo-1679043871333-b785bd519ad3?crop=entropy&cs=srgb&fm=jpg&w=700&q=85" />
       </div>
       <div class="half-right">
         <img src="https://images.unsplash.com/photo-1679043871333-b785bd519ad3?crop=entropy&cs=srgb&fm=jpg&w=700&q=85" />
