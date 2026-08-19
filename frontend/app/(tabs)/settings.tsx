@@ -65,7 +65,7 @@ export default function Settings() {
               <Ionicons name="diamond" size={28} color="#007AFF" style={{ marginBottom: 6 }} />
               <Text style={[styles.proCardTitle, { color: "#007AFF" }]}>CleanU Pro</Text>
               <Text style={[styles.proCardPlan, { color: t.colors.onSurfaceTertiary }]}>
-                {user.plan === "lifetime" ? "Lifetime · einmalige Zahlung" : "Weekly · 4,99 €/Woche"}
+                {user.plan === "lifetime" ? "Lifetime" : "Weekly · 4,99 €/Woche"}
               </Text>
             </View>
           </View>
