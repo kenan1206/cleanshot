@@ -87,14 +87,7 @@ export default function ExtrasTab() {
                     <Ionicons name={item.icon as any} size={22} color={item.iconColor} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                      <Text style={s.rowTitle}>{item.title}</Text>
-                      {item.route === "/tools/secret-library" && !user?.is_premium && !user?.is_lifetime && (
-                        <View testID="secret-library-free-badge" style={[s.proBadge, { backgroundColor: "#34C759" }]}>
-                          <Text style={s.proBadgeText}>{t("extras_screen.secret_library_free_badge")}</Text>
-                        </View>
-                      )}
-                    </View>
+                    <Text style={s.rowTitle}>{item.title}</Text>
                     <Text style={s.rowSub}>{item.sub}</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
