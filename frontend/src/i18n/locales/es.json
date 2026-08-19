@@ -189,6 +189,7 @@
     "quota_title": "Cuota gratuita",
     "flash_title": "🔥 ¡Oferta terminando!",
     "flash_sub": "De por vida por 19,99 € — solo tiempo limitado",
+    "flash_sub_dynamic": "De por vida por {{price}} — solo tiempo limitado",
     "scan_now": "Escanear ahora"
   },
   "categories": {

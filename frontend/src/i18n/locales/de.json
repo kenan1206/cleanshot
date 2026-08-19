@@ -188,7 +188,8 @@
     "quota_photos": "{{used}}/{{limit}} Fotos",
     "quota_mb": "{{used}}/{{limit}} MB",
     "flash_title": "🔥 Sonderangebot läuft ab!",
-    "flash_sub": "Lifetime für 19,99 € — nur noch kurze Zeit"
+    "flash_sub": "Lifetime für 19,99 € — nur noch kurze Zeit",
+    "flash_sub_dynamic": "Lifetime für {{price}} — nur noch kurze Zeit"
   },
   "categories": {
     "duplicates_title": "Duplikate",

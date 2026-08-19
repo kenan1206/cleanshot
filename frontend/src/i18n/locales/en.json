@@ -188,7 +188,8 @@
     "quota_photos": "{{used}}/{{limit}} photos",
     "quota_mb": "{{used}}/{{limit}} MB",
     "flash_title": "🔥 Special offer ending!",
-    "flash_sub": "Lifetime for €19.99 — limited time only"
+    "flash_sub": "Lifetime for €19.99 — limited time only",
+    "flash_sub_dynamic": "Lifetime for {{price}} — limited time only"
   },
   "categories": {
     "duplicates_title": "Duplicates",

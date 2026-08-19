@@ -189,6 +189,7 @@
     "quota_title": "Quota gratuita",
     "flash_title": "🔥 Oferta a terminar!",
     "flash_sub": "Vitalício por 19,99 € — tempo limitado",
+    "flash_sub_dynamic": "Vitalício por {{price}} — tempo limitado",
     "scan_now": "Escanear agora"
   },
   "categories": {

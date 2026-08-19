@@ -49,6 +49,15 @@ export default function Start() {
   const { isActive: isFlashActive, label: flashCountdown } = useOfferCountdown();
   const isPremium = !!user?.is_premium || rc.isSubscribed;
 
+  // Offer-Preis dynamisch aus RevenueCat — korrekte Währung je Land
+  const offerPackage = rc.offerings?.current?.availablePackages.find(
+    (p) => p.identifier === "lifetime_offer"
+  );
+  const regularLifetimePackage = rc.offerings?.current?.availablePackages.find(
+    (p) => p.packageType === "LIFETIME" && p.identifier !== "lifetime_offer"
+  );
+  const flashPrice = (offerPackage ?? regularLifetimePackage)?.product.priceString ?? null;
+
   const [scanning, setScanning] = useState(false);
   const [permission, setPermission] = useState<MediaLibrary.PermissionResponse | null>(null);
   const [results, setResults] = useState<Record<Category, CategoryResult> | null>(null);
@@ -347,7 +356,9 @@ export default function Start() {
           <Ionicons name="flame" size={18} color="#fff" />
           <View style={{ flex: 1, marginLeft: 10 }}>
             <Text style={styles.flashBannerTitle}>{t("home.flash_title")}</Text>
-            <Text style={styles.flashBannerSub}>{t("home.flash_sub")}</Text>
+            <Text style={styles.flashBannerSub}>
+              {flashPrice ? t("home.flash_sub_dynamic", { price: flashPrice }) : t("home.flash_sub")}
+            </Text>
           </View>
           <View style={styles.timerBox}>
             <Text style={styles.timerText}>{flashCountdown}</Text>

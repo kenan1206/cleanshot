@@ -189,6 +189,7 @@
     "quota_title": "Quota gratuit",
     "flash_title": "🔥 Offre se termine !",
     "flash_sub": "À vie pour 19,99 € — temps limité",
+    "flash_sub_dynamic": "À vie pour {{price}} — temps limité",
     "scan_now": "Scanner maintenant"
   },
   "categories": {

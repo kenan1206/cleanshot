@@ -189,6 +189,7 @@
     "quota_title": "Ücretsiz kota",
     "flash_title": "🔥 Teklif bitiyor!",
     "flash_sub": "Lifetime 19,99 € — sınırlı süre",
+    "flash_sub_dynamic": "Lifetime {{price}} — sınırlı süre",
     "scan_now": "Şimdi tara"
   },
   "categories": {
