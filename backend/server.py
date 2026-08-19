@@ -445,6 +445,14 @@ async def screenshot_slide():
     return HTMLResponse(content="<h1>Not found</h1>", status_code=404)
 
 
+@app.get("/api/screenshot-slide2", response_class=HTMLResponse, include_in_schema=False)
+async def screenshot_slide2():
+    html_path = Path(__file__).parent.parent / "frontend" / "assets" / "screenshot_slide2.html"
+    if html_path.exists():
+        return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Not found</h1>", status_code=404)
+
+
 app.include_router(api_router)
 
 

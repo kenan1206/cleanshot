@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=393">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    min-height: 852px;
+    background: #2a2a4a;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .phone {
+    width: 393px;
+    min-height: 852px;
+    background: #5383ff;
+    position: relative;
+    overflow: hidden;
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  }
+
+  /* glow */
+  .glow {
+    position: absolute; top: -100px; left: 50%;
+    transform: translateX(-50%);
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(255,255,255,0.16) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+  .glow-bot {
+    position: absolute; bottom: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 400px; height: 300px;
+    background: radial-gradient(circle, rgba(20,20,100,0.3) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .inner {
+    position: relative; z-index: 1;
+    padding: 48px 22px 40px;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0;
+  }
+
+  /* ── Section ── */
+  .section {
+    width: 100%;
+    display: flex; flex-direction: column; align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .eyebrow {
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: #FFD166;
+    margin-bottom: 2px;
+  }
+
+  .title {
+    font-size: 48px; font-weight: 800;
+    color: #fff; letter-spacing: -2px; line-height: 1;
+    margin-bottom: 18px; text-align: center;
+  }
+
+  /* ── Photo Pair ── */
+  .pair {
+    width: 100%; display: flex; gap: 10px;
+  }
+
+  .slot {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 10px;
+  }
+
+  .photo {
+    width: 100%; aspect-ratio: 3/4;
+    border-radius: 20px; overflow: hidden;
+    box-shadow:
+      0 20px 50px rgba(0,0,0,0.35),
+      0 4px 16px rgba(0,0,0,0.2),
+      inset 0 0 0 1.5px rgba(255,255,255,0.12);
+    position: relative;
+  }
+
+  .photo img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+
+  /* Overlay tint for the delete photo */
+  .photo.dim::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(255,59,48,0.18);
+    border-radius: 20px;
+  }
+
+  /* Badge */
+  .badge {
+    width: 46px; height: 46px;
+    border-radius: 15px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 800;
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  }
+  .badge.keep { background: #34C759; }
+  .badge.del  { background: #FF3B30; }
+
+  /* Divider */
+  .div {
+    width: 100%; height: 1px;
+    background: rgba(255,255,255,0.18);
+    margin: 8px 0 22px;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="glow"></div>
+  <div class="glow-bot"></div>
+  <div class="inner">
+
+    <!-- DUPLIKATE -->
+    <div class="section">
+      <span class="eyebrow">Lösche</span>
+      <span class="title">Duplikate</span>
+      <div class="pair">
+        <div class="slot">
+          <div class="photo">
+            <img src="https://images.unsplash.com/photo-1762344352930-1e459b3e8c88?crop=entropy&cs=srgb&fm=jpg&w=400&q=85" />
+          </div>
+          <div class="badge keep">✓</div>
+        </div>
+        <div class="slot">
+          <div class="photo dim">
+            <img src="https://images.unsplash.com/photo-1723189038268-3ef8fd518ad9?crop=entropy&cs=srgb&fm=jpg&w=400&q=85" />
+          </div>
+          <div class="badge del">✕</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="div"></div>
+
+    <!-- ÄHNLICHE FOTOS -->
+    <div class="section">
+      <span class="eyebrow">Erkenne</span>
+      <span class="title">Ähnliche Fotos</span>
+      <div class="pair">
+        <div class="slot">
+          <div class="photo">
+            <img src="https://images.unsplash.com/photo-1503803548695-c2a7b4a5b875?crop=entropy&cs=srgb&fm=jpg&w=400&q=85" />
+          </div>
+          <div class="badge keep">✓</div>
+        </div>
+        <div class="slot">
+          <div class="photo dim">
+            <img src="https://images.unsplash.com/photo-1647962431451-d0fdaf1cf21c?crop=entropy&cs=srgb&fm=jpg&w=400&q=85" />
+          </div>
+          <div class="badge del">✕</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
