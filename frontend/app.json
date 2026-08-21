@@ -2,7 +2,7 @@
   "expo": {
     "name": "CleanU",
     "slug": "cleanu",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": [
@@ -24,7 +24,7 @@
       "ru": "./src/i18n/locales/ru.json"
     },
     "ios": {
-      "buildNumber": "1",
+      "buildNumber": "2",
       "supportsTablet": true,
       "bundleIdentifier": "com.kenanplayer.cleanu",
       "infoPlist": {
