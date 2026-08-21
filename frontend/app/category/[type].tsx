@@ -75,7 +75,26 @@ export default function CategoryDetail() {
   }, [cr]);
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectMode, setSelectMode] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(-1);
+
+  const enterSelectMode = useCallback((id?: string) => {
+    setSelectMode(true);
+    if (id) {
+      Haptics.selectionAsync().catch(() => {});
+      setSelected((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      });
+    }
+  }, []);
+
+  const exitSelectMode = useCallback(() => {
+    setSelectMode(false);
+    setSelected(new Set());
+  }, []);
 
   // Alle Assets als ViewerMedia für den Viewer
   const viewerItems: ViewerMedia[] = useMemo(
@@ -182,10 +201,17 @@ export default function CategoryDetail() {
                   },
                 ]}
               >
-                {/* Bild-Tap → Viewer öffnen */}
+                {/* Bild-Tap → Viewer öffnen ODER auswählen (je nach Modus) */}
                 <Pressable
                   style={StyleSheet.absoluteFill}
-                  onPress={() => { if (assetIdx >= 0) setViewerIndex(assetIdx); }}
+                  onPress={() => {
+                    if (selectMode) {
+                      Haptics.selectionAsync().catch(() => {});
+                      toggle(a.id);
+                    } else if (assetIdx >= 0) {
+                      setViewerIndex(assetIdx);
+                    }
+                  }}
                   testID={`thumb-${a.id}`}
                 >
                   <AssetThumbnail asset={a} style={styles.tileImg} />
@@ -201,10 +227,7 @@ export default function CategoryDetail() {
                 {/* ── Auswahl-Kreis (Apple Photos Stil) ── */}
                 <TouchableOpacity
                   style={styles.selCircleBtn}
-                  onPress={() => {
-                    Haptics.selectionAsync().catch(() => {});
-                    toggle(a.id);
-                  }}
+                  onPress={() => enterSelectMode(a.id)}
                   hitSlop={8}
                   testID={`select-${a.id}`}
                 >
@@ -227,18 +250,36 @@ export default function CategoryDetail() {
       <View style={{ flex: 1 }}>
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-          <Pressable onPress={() => router.back()} testID="category-back" hitSlop={12} style={styles.headerBtn}>
-            <Ionicons name="chevron-back" size={22} color={t.colors.onSurface} />
-          </Pressable>
+          {selectMode ? (
+            <Pressable onPress={exitSelectMode} testID="category-cancel-select" hitSlop={12} style={styles.headerBtn}>
+              <Text style={[t.type.caption, { color: accent, fontWeight: "700" }]}>Abbrechen</Text>
+            </Pressable>
+          ) : (
+            <Pressable onPress={() => router.back()} testID="category-back" hitSlop={12} style={styles.headerBtn}>
+              <Ionicons name="chevron-back" size={22} color={t.colors.onSurface} />
+            </Pressable>
+          )}
           <View style={{ flex: 1, alignItems: "center" }}>
-            <Text style={[t.type.micro, { color: accent }]}>{formatSize(cr?.totalSizeMB ?? 0)} · {cr?.totalItems ?? 0} {tr("categories.selected_label", { count: cr?.totalItems ?? 0 }).replace(/^\d+\s*/, "")}</Text>
-            <Text style={[t.type.title, { color: t.colors.onSurface }]}>{tr(meta.titleKey)}</Text>
+            {selectMode && selected.size > 0 ? (
+              <Text style={[t.type.title, { color: t.colors.onSurface }]}>{selected.size} ausgewählt</Text>
+            ) : (
+              <>
+                <Text style={[t.type.micro, { color: accent }]}>{formatSize(cr?.totalSizeMB ?? 0)} · {cr?.totalItems ?? 0} {tr("categories.selected_label", { count: cr?.totalItems ?? 0 }).replace(/^\d+\s*/, "")}</Text>
+                <Text style={[t.type.title, { color: t.colors.onSurface }]}>{tr(meta.titleKey)}</Text>
+              </>
+            )}
           </View>
-          <Pressable onPress={toggleAll} testID="category-select-all" hitSlop={12} style={styles.headerBtn}>
-            <Text style={[t.type.caption, { color: accent, fontWeight: "700" }]}>
-              {selected.size > 0 && selected.size === flatAssets.length ? tr("common.select_none") : tr("common.select_all")}
-            </Text>
-          </Pressable>
+          {selectMode ? (
+            <Pressable onPress={toggleAll} testID="category-select-all" hitSlop={12} style={styles.headerBtn}>
+              <Text style={[t.type.caption, { color: accent, fontWeight: "700" }]}>
+                {selected.size === flatAssets.length ? "Keine" : "Alle"}
+              </Text>
+            </Pressable>
+          ) : (
+            <Pressable onPress={() => enterSelectMode()} testID="category-enter-select" hitSlop={12} style={styles.headerBtn}>
+              <Text style={[t.type.caption, { color: accent, fontWeight: "700" }]}>Auswählen</Text>
+            </Pressable>
+          )}
         </View>
 
         <FlatList

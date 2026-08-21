@@ -42,7 +42,9 @@ export default function RootLayout() {
     }
   }, [loaded, error, i18nReady]);
 
-  if ((!loaded && !error) || !i18nReady) return null;
+  if ((!loaded && !error) || !i18nReady) return (
+    <View style={{ flex: 1, backgroundColor: "#2A50D9" }} />
+  );
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
