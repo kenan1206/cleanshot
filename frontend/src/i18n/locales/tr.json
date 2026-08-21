@@ -136,7 +136,9 @@
     "close": "Kapat",
     "done": "Bitti",
     "video_ios_only": "Video sadece iOS'ta kullanılabilir",
-    "items_label": "{{count}} öğe"
+    "items_label": "{{count}} öğe",
+    "storage_full_title": "Depolama Alanı Yetersiz 📦",
+    "storage_full_body": "iPhone'unda boş depolama alanı kalmadı. Önce fotoğraf veya video sil, sonra tekrar dene."
   },
   "onboarding": {
     "slide1_title": "Saniyeler içinde yer aç",

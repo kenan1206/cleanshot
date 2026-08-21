@@ -136,7 +136,9 @@
     "close": "Fechar",
     "done": "Concluído",
     "video_ios_only": "Vídeo disponível apenas no iOS",
-    "items_label": "{{count}} itens"
+    "items_label": "{{count}} itens",
+    "storage_full_title": "Sem espaço de armazenamento 📦",
+    "storage_full_body": "O teu iPhone não tem armazenamento livre. Elimina fotos ou vídeos primeiro e tenta novamente."
   },
   "onboarding": {
     "slide1_title": "Libere espaço em segundos",

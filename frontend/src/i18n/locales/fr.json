@@ -136,7 +136,9 @@
     "close": "Fermer",
     "done": "Terminé",
     "video_ios_only": "Vidéo disponible uniquement sur iOS",
-    "items_label": "{{count}} éléments"
+    "items_label": "{{count}} éléments",
+    "storage_full_title": "Stockage insuffisant 📦",
+    "storage_full_body": "Ton iPhone n'a plus d'espace libre. Supprime d'abord des photos ou vidéos, puis réessaie."
   },
   "onboarding": {
     "slide1_title": "Libérez de l'espace en quelques secondes",

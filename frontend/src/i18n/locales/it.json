@@ -136,7 +136,9 @@
     "close": "Chiudi",
     "done": "Fatto",
     "video_ios_only": "Video disponibile solo su iOS",
-    "items_label": "{{count}} elementi"
+    "items_label": "{{count}} elementi",
+    "storage_full_title": "Spazio esaurito 📦",
+    "storage_full_body": "Il tuo iPhone non ha spazio libero. Elimina prima alcune foto o video, poi riprova."
   },
   "onboarding": {
     "slide1_title": "Libera spazio in pochi secondi",

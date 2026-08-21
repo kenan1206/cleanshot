@@ -136,7 +136,9 @@
     "close": "Sluiten",
     "done": "Klaar",
     "video_ios_only": "Video alleen beschikbaar op iOS",
-    "items_label": "{{count}} items"
+    "items_label": "{{count}} items",
+    "storage_full_title": "Onvoldoende opslagruimte 📦",
+    "storage_full_body": "Je iPhone heeft geen vrije opslagruimte meer. Verwijder eerst foto's of video's en probeer het opnieuw."
   },
   "onboarding": {
     "slide1_title": "Bespaar ruimte in seconden",

@@ -144,7 +144,9 @@
     "close": "Zamknij",
     "done": "Gotowe",
     "video_ios_only": "Wideo dostępne tylko na iOS",
-    "items_label": "{{count}} elementów"
+    "items_label": "{{count}} elementów",
+    "storage_full_title": "Brak miejsca na dysku 📦",
+    "storage_full_body": "Twój iPhone nie ma wolnego miejsca. Najpierw usuń zdjęcia lub filmy, a następnie spróbuj ponownie."
   },
   "onboarding": {
     "slide1_title": "Zwolnij miejsce w kilka sekund",

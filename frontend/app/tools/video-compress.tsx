@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   View, Text, StyleSheet, Pressable, FlatList, ActivityIndicator,
-  Modal, TouchableOpacity, useWindowDimensions,
+  Modal, TouchableOpacity, useWindowDimensions, Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -168,9 +168,14 @@ export default function VideoCompress() {
         setCurrentItemPct(0);
         setOverallProgress({ done: doneCount, total: selectedVideos.length });
         setVideos((prev) => prev.map((v) => v.id === video.id ? { ...v, status: "done", progress: 100, savedMB } : v));
-      } catch (e) {
+      } catch (e: any) {
         console.warn("compression failed for", video.id, e);
         setVideos((prev) => prev.map((v) => v.id === video.id ? { ...v, status: "error", progress: 0 } : v));
+        const isNoSpace = /no space|enospc|out of space|640/i.test(e?.message ?? "") || e?.code === "ENOSPC";
+        if (isNoSpace) {
+          Alert.alert(t("common.storage_full_title"), t("common.storage_full_body"));
+          break;
+        }
       }
     }
 

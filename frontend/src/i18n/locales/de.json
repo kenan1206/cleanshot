@@ -136,7 +136,9 @@
     "close": "Schließen",
     "done": "Fertig",
     "video_ios_only": "Video nur auf iOS verfügbar",
-    "items_label": "{{count}} Elemente"
+    "items_label": "{{count}} Elemente",
+    "storage_full_title": "Kein Speicherplatz 📦",
+    "storage_full_body": "Dein iPhone hat keinen freien Speicher mehr. Lösche zuerst Fotos oder Videos, dann versuche es erneut."
   },
   "onboarding": {
     "slide1_title": "Speicher in Sekunden freigeben",

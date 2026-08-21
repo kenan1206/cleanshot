@@ -144,7 +144,9 @@
     "close": "Закрыть",
     "done": "Готово",
     "video_ios_only": "Видео доступно только на iOS",
-    "items_label": "{{count}} элементов"
+    "items_label": "{{count}} элементов",
+    "storage_full_title": "Недостаточно места 📦",
+    "storage_full_body": "На iPhone закончилось свободное место. Удали фото или видео, затем попробуй снова."
   },
   "onboarding": {
     "slide1_title": "Освободите место за секунды",

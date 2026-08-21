@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import {
   View, Text, StyleSheet, Pressable, FlatList, ActivityIndicator,
-  useWindowDimensions, Modal, TouchableOpacity, ScrollView,
+  useWindowDimensions, Modal, TouchableOpacity, ScrollView, Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -151,9 +151,14 @@ export default function LiveStill() {
         converted.push(item.id);
         setConvertProgress({ done: count, total: selectedItems.length });
         setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, status: "done" } : i)));
-      } catch (e) {
+      } catch (e: any) {
         console.warn("conversion failed for", item.id, e);
         setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, status: "error" } : i)));
+        const isNoSpace = /no space|enospc|out of space|640/i.test(e?.message ?? "") || e?.code === "ENOSPC";
+        if (isNoSpace) {
+          Alert.alert(t("common.storage_full_title"), t("common.storage_full_body"));
+          break;
+        }
       }
     }
     setDoneCount(count);

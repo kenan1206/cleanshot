@@ -136,7 +136,9 @@
     "close": "Close",
     "done": "Done",
     "video_ios_only": "Video only available on iOS",
-    "items_label": "{{count}} items"
+    "items_label": "{{count}} items",
+    "storage_full_title": "Not Enough Storage 📦",
+    "storage_full_body": "Your iPhone has no free storage. Delete some photos or videos first, then try again."
   },
   "onboarding": {
     "slide1_title": "Free up space in seconds",
