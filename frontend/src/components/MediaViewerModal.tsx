@@ -1,9 +1,9 @@
-// Shared full-screen viewer — Bilder (Pinch-Zoom) + Videos (expo-video)
-// Swipe DOWN → schließt, Swipe LINKS/RECHTS → Navigation
-import React, { useState, useCallback, useRef } from "react";
+// Shared full-screen viewer — Bilder (Pinch-Zoom via RNGH) + Videos
+// Swipe DOWN → schließt, Pinch → Zoom, Swipe LINKS/RECHTS → Navigation
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
-  View, Modal, FlatList, ScrollView, TouchableOpacity,
-  StyleSheet, Dimensions, Platform,
+  View, Modal, FlatList, TouchableOpacity,
+  StyleSheet, Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -34,43 +34,82 @@ const { width: W, height: H } = Dimensions.get("window");
 export default function MediaViewerModal({ items, initialIndex, visible, onClose }: Props) {
   const insets = useSafeAreaInsets();
   const [curIdx, setCurIdx] = useState(initialIndex);
+  const [flatScrollEnabled, setFlatScrollEnabled] = useState(true);
   const flatRef = useRef<FlatList>(null);
 
-  // ── Swipe-Down to Close ──────────────────────────────────
+  // ── Animation state ────────────────────────────────────────────
   const translateY = useSharedValue(0);
-  const bgOpacity = useSharedValue(1);
+  const bgOpacity  = useSharedValue(1);
+  const scale      = useSharedValue(1);
+  const savedScale = useSharedValue(1);
+  const isZoomed   = useSharedValue(false);
+
+  // Reset zoom when navigating pages
+  useEffect(() => {
+    scale.value      = withSpring(1);
+    savedScale.value = 1;
+    isZoomed.value   = false;
+    setFlatScrollEnabled(true);
+  }, [curIdx]);
 
   const doClose = useCallback(() => {
     translateY.value = 0;
-    bgOpacity.value = 1;
+    bgOpacity.value  = 1;
+    scale.value      = 1;
+    savedScale.value = 1;
+    isZoomed.value   = false;
     onClose();
-  }, [onClose, translateY, bgOpacity]);
+  }, [onClose, translateY, bgOpacity, scale, savedScale, isZoomed]);
 
-  const panGesture = Gesture.Pan()
-    .activeOffsetY([-6, 6])      // Erst nach 6px vertikal aktivieren
-    .failOffsetX([-12, 12])      // Abbrechen bei horizontalem Swipe (→ FlatList übernimmt)
+  // ── Swipe-Down to close (deaktiviert wenn gezoomt) ─────────────
+  const swipeDown = Gesture.Pan()
+    .activeOffsetY([-6, 6])
+    .failOffsetX([-14, 14])
     .onUpdate((e) => {
+      if (isZoomed.value) return;
       if (e.translationY > 0) {
         translateY.value = e.translationY;
-        bgOpacity.value = Math.max(0.2, 1 - e.translationY / 350);
+        bgOpacity.value  = Math.max(0.2, 1 - e.translationY / 350);
       }
     })
     .onEnd((e) => {
-      if (e.translationY > 120 || e.velocityY > 600) {
+      if (!isZoomed.value && (e.translationY > 120 || e.velocityY > 600)) {
         translateY.value = withTiming(H, { duration: 220 }, () => runOnJS(doClose)());
       } else {
         translateY.value = withSpring(0, { damping: 20 });
-        bgOpacity.value = withSpring(1);
+        bgOpacity.value  = withSpring(1);
       }
     });
 
+  // ── Pinch-to-Zoom (ersetzt ScrollView — kein nativer Konflikt) ─
+  const pinch = Gesture.Pinch()
+    .onUpdate((e) => {
+      scale.value = Math.max(1, Math.min(savedScale.value * e.scale, 5));
+    })
+    .onEnd(() => {
+      savedScale.value = scale.value;
+      if (scale.value < 1.1) {
+        scale.value      = withSpring(1);
+        savedScale.value = 1;
+        isZoomed.value   = false;
+        runOnJS(setFlatScrollEnabled)(true);
+      } else {
+        isZoomed.value = true;
+        runOnJS(setFlatScrollEnabled)(false);
+      }
+    });
+
+  const composed = Gesture.Simultaneous(swipeDown, pinch);
+
+  // ── Animated styles ────────────────────────────────────────────
+  const bgStyle  = useAnimatedStyle(() => ({
+    flex: 1, backgroundColor: "#000", opacity: bgOpacity.value,
+  }));
   const panStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
-  const bgStyle = useAnimatedStyle(() => ({
-    flex: 1,
-    backgroundColor: "#000",
-    opacity: bgOpacity.value,
+  const zoomStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
   }));
 
   if (!visible || items.length === 0) return null;
@@ -84,19 +123,18 @@ export default function MediaViewerModal({ items, initialIndex, visible, onClose
       testID="media-viewer-modal"
     >
       <Animated.View style={bgStyle}>
-        <GestureDetector gesture={panGesture}>
+        <GestureDetector gesture={composed}>
           <Animated.View style={[{ flex: 1 }, panStyle]}>
 
-            {/* ── Swipeable pages ── */}
             <FlatList
               ref={flatRef}
               data={items}
               horizontal
               pagingEnabled
+              scrollEnabled={flatScrollEnabled}
               initialScrollIndex={initialIndex}
               getItemLayout={(_, i) => ({ length: W, offset: W * i, index: i })}
               showsHorizontalScrollIndicator={false}
-              // Live-Updates während Scroll (nicht erst nach Ende)
               onScroll={(e) => {
                 const idx = Math.round(e.nativeEvent.contentOffset.x / W);
                 if (idx !== curIdx) setCurIdx(idx);
@@ -108,22 +146,15 @@ export default function MediaViewerModal({ items, initialIndex, visible, onClose
               }}
               keyExtractor={(item) => item.id}
               renderItem={({ item, index }) => (
-                <View style={{ width: W, height: H }}>
+                <View style={{ width: W, height: H, alignItems: "center", justifyContent: "center" }}>
                   {item.type === "image" ? (
-                    <ScrollView
-                      style={{ flex: 1 }}
-                      maximumZoomScale={5}
-                      minimumZoomScale={1}
-                      showsHorizontalScrollIndicator={false}
-                      showsVerticalScrollIndicator={false}
-                      centerContent
-                    >
+                    <Animated.View style={[{ width: W, height: H }, zoomStyle]}>
                       <ExpoImage
                         source={{ uri: item.uri }}
                         style={{ width: W, height: H }}
                         contentFit="contain"
                       />
-                    </ScrollView>
+                    </Animated.View>
                   ) : (
                     <VideoPlayerNative uri={item.uri} isActive={index === curIdx} />
                   )}
@@ -131,7 +162,7 @@ export default function MediaViewerModal({ items, initialIndex, visible, onClose
               )}
             />
 
-            {/* ── Close — nach FlatList → liegt oben ── */}
+            {/* Close-Button liegt über FlatList */}
             <TouchableOpacity
               style={[s.closeBtn, { top: insets.top + 8 }]}
               onPress={doClose}
@@ -161,13 +192,4 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  pageWrap: {
-    position: "absolute",
-    alignSelf: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 14,
-  },
-  pageText: { color: "#fff", fontSize: 13, fontWeight: "600" },
 });

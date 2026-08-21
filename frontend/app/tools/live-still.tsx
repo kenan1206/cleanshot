@@ -6,6 +6,10 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue, useAnimatedStyle, withTiming, withSpring, runOnJS,
+} from "react-native-reanimated";
 import { Image as ExpoImage } from "expo-image";
 import { useRouter } from "expo-router";
 import * as MediaLibrary from "expo-media-library";
@@ -51,6 +55,9 @@ export default function LiveStill() {
   const [previewItem, setPreviewItem] = useState<LiveItem | null>(null);
   const [selectMode, setSelectMode] = useState(false);
 
+  // ── Swipe-Down für Preview-Card ──────────────────────────────
+  const previewTranslateY = useSharedValue(0);
+
   const enterSelectMode = useCallback((id?: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     setSelectMode(true);
@@ -91,6 +98,11 @@ export default function LiveStill() {
   }, []);
 
   useEffect(() => { loadLivePhotos(); }, [loadLivePhotos]);
+
+  // Reset Card-Position wenn neues Preview öffnet
+  useEffect(() => {
+    if (previewItem) previewTranslateY.value = 0;
+  }, [previewItem, previewTranslateY]);
 
   const toggleAll = () => {
     const allSelected = items.every((i) => i.selected);
@@ -355,35 +367,54 @@ export default function LiveStill() {
       <Modal visible={!!previewItem} animationType="fade" transparent onRequestClose={() => setPreviewItem(null)}>
         <View style={s.previewOverlay}>
           <Pressable style={StyleSheet.absoluteFillObject} onPress={() => setPreviewItem(null)} />
-          {previewItem && (
-            <View style={s.previewCard}>
-              <ExpoImage
-                source={{ uri: previewItem.uri }}
-                style={s.previewImg}
-                contentFit="contain"
-              />
-              <View style={s.previewInfo}>
-                <View style={s.livePill}><Text style={s.livePillText}>{t("live_still_screen.live_badge_label")}</Text></View>
-                <Text style={s.previewName} numberOfLines={2}>{previewItem.filename}</Text>
-                <Text style={s.previewMeta}>{previewItem.width} × {previewItem.height}</Text>
-              </View>
-              <View style={s.previewActions}>
-                <TouchableOpacity
-                  style={[s.previewSelectBtn, previewItem.selected && s.previewSelectBtnOn]}
-                  onPress={() => { toggleItem(previewItem.id); setPreviewItem(null); }}
-                  testID="preview-select-btn"
-                >
-                  <Ionicons name={previewItem.selected ? "checkmark-circle" : "radio-button-off-outline"} size={20} color={previewItem.selected ? "#fff" : "#007AFF"} />
-                  <Text style={[s.previewSelectText, previewItem.selected && { color: "#fff" }]}>
-                    {previewItem.selected ? t("live_still_screen.selected_label") : t("live_still_screen.select_label")}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={s.previewCloseBtn} onPress={() => setPreviewItem(null)}>
-                  <Text style={s.previewCloseTxt}>{t("common.close")}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
+          {previewItem && (() => {
+            const closePreview = () => setPreviewItem(null);
+            const swipeCard = Gesture.Pan()
+              .activeOffsetY([-6, 6])
+              .failOffsetX([-20, 20])
+              .onUpdate((e) => {
+                if (e.translationY > 0) previewTranslateY.value = e.translationY;
+              })
+              .onEnd((e) => {
+                if (e.translationY > 100 || e.velocityY > 500) {
+                  previewTranslateY.value = withTiming(800, { duration: 200 }, () => runOnJS(closePreview)());
+                } else {
+                  previewTranslateY.value = withSpring(0, { damping: 20 });
+                }
+              });
+            const cardStyle = { transform: [{ translateY: previewTranslateY }] };
+            return (
+              <GestureDetector gesture={swipeCard}>
+                <Animated.View style={[s.previewCard, cardStyle]}>
+                  <ExpoImage
+                    source={{ uri: previewItem.uri }}
+                    style={s.previewImg}
+                    contentFit="contain"
+                  />
+                  <View style={s.previewInfo}>
+                    <View style={s.livePill}><Text style={s.livePillText}>{t("live_still_screen.live_badge_label")}</Text></View>
+                    <Text style={s.previewName} numberOfLines={2}>{previewItem.filename}</Text>
+                    <Text style={s.previewMeta}>{previewItem.width} × {previewItem.height}</Text>
+                  </View>
+                  <View style={s.previewActions}>
+                    <TouchableOpacity
+                      style={[s.previewSelectBtn, previewItem.selected && s.previewSelectBtnOn]}
+                      onPress={() => { toggleItem(previewItem.id); setPreviewItem(null); }}
+                      testID="preview-select-btn"
+                    >
+                      <Ionicons name={previewItem.selected ? "checkmark-circle" : "radio-button-off-outline"} size={20} color={previewItem.selected ? "#fff" : "#007AFF"} />
+                      <Text style={[s.previewSelectText, previewItem.selected && { color: "#fff" }]}>
+                        {previewItem.selected ? t("live_still_screen.selected_label") : t("live_still_screen.select_label")}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={s.previewCloseBtn} onPress={closePreview}>
+                      <Text style={s.previewCloseTxt}>{t("common.close")}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </Animated.View>
+              </GestureDetector>
+            );
+          })()}
         </View>
       </Modal>
 

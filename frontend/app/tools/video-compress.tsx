@@ -6,6 +6,10 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue, useAnimatedStyle, withTiming, withSpring, runOnJS,
+} from "react-native-reanimated";
 import { useRouter } from "expo-router";
 import * as MediaLibrary from "expo-media-library";
 import * as Haptics from "expo-haptics";
@@ -481,34 +485,72 @@ function VideoPreviewModal({
 }) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const { height: screenH } = useWindowDimensions();
+
+  // ── Swipe-Down to Close ──────────────────────────────────
+  const translateY = useSharedValue(0);
+  const bgOpacity  = useSharedValue(1);
+
+  const doClose = useCallback(() => {
+    translateY.value = 0;
+    bgOpacity.value  = 1;
+    onClose();
+  }, [onClose, translateY, bgOpacity]);
+
+  const swipeDown = Gesture.Pan()
+    .activeOffsetY([-6, 6])
+    .failOffsetX([-14, 14])
+    .onUpdate((e) => {
+      if (e.translationY > 0) {
+        translateY.value = e.translationY;
+        bgOpacity.value  = Math.max(0.2, 1 - e.translationY / 400);
+      }
+    })
+    .onEnd((e) => {
+      if (e.translationY > 120 || e.velocityY > 600) {
+        translateY.value = withTiming(screenH, { duration: 220 }, () => runOnJS(doClose)());
+      } else {
+        translateY.value = withSpring(0, { damping: 20 });
+        bgOpacity.value  = withSpring(1);
+      }
+    });
+
+  const containerStyle = useAnimatedStyle(() => ({
+    flex: 1,
+    backgroundColor: "#000",
+    opacity: bgOpacity.value,
+    transform: [{ translateY: translateY.value }],
+  }));
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#000" }}>
-      <View style={[pv.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity onPress={onClose} hitSlop={10} testID="preview-close-btn">
-          <Ionicons name="chevron-down" size={28} color="#fff" />
-        </TouchableOpacity>
-        <View style={{ flex: 1, marginLeft: 12 }}>
-          <Text style={pv.title} numberOfLines={1}>{video.filename}</Text>
-          <Text style={pv.sub}>{formatDur(video.duration)} · ~{formatSize(video.sizeMB)} · {video.width}×{video.height}</Text>
+    <GestureDetector gesture={swipeDown}>
+      <Animated.View style={containerStyle}>
+        <View style={[pv.header, { paddingTop: insets.top + 8 }]}>
+          <TouchableOpacity onPress={doClose} hitSlop={10} testID="preview-close-btn">
+            <Ionicons name="chevron-down" size={28} color="#fff" />
+          </TouchableOpacity>
+          <View style={{ flex: 1, marginLeft: 12 }}>
+            <Text style={pv.title} numberOfLines={1}>{video.filename}</Text>
+            <Text style={pv.sub}>{formatDur(video.duration)} · ~{formatSize(video.sizeMB)} · {video.width}×{video.height}</Text>
+          </View>
         </View>
-      </View>
 
-      {/* ph:// URI direkt — kein getAssetInfoAsync nötig, wie LiveVideoThumb.native.tsx */}
-      <View style={{ flex: 1, backgroundColor: "#111" }}>
-        <VideoPreviewPlayer uri={video.uri} />
-      </View>
+        {/* ph:// URI direkt — kein getAssetInfoAsync nötig, wie LiveVideoThumb.native.tsx */}
+        <View style={{ flex: 1, backgroundColor: "#111" }}>
+          <VideoPreviewPlayer uri={video.uri} />
+        </View>
 
-      <View style={{ backgroundColor: "#000", paddingHorizontal: 16, paddingTop: 14, paddingBottom: insets.bottom + 14, gap: 10 }}>
-        <TouchableOpacity testID="preview-select-btn" style={[pv.selectBtn, isSelected && pv.selectBtnOn]} onPress={onSelect}>
-          <Ionicons name={isSelected ? "checkmark-circle" : "radio-button-off-outline"} size={22} color={isSelected ? "#fff" : "#007AFF"} />
-          <Text style={[pv.selectText, isSelected && { color: "#fff" }]}>{isSelected ? t("video_compress_screen.selected_label") : t("video_compress_screen.select_to_compress")}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={pv.closeActionBtn} onPress={onClose}>
-          <Text style={pv.closeActionText}>{t("common.close")}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+        <View style={{ backgroundColor: "#000", paddingHorizontal: 16, paddingTop: 14, paddingBottom: insets.bottom + 14, gap: 10 }}>
+          <TouchableOpacity testID="preview-select-btn" style={[pv.selectBtn, isSelected && pv.selectBtnOn]} onPress={onSelect}>
+            <Ionicons name={isSelected ? "checkmark-circle" : "radio-button-off-outline"} size={22} color={isSelected ? "#fff" : "#007AFF"} />
+            <Text style={[pv.selectText, isSelected && { color: "#fff" }]}>{isSelected ? t("video_compress_screen.selected_label") : t("video_compress_screen.select_to_compress")}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={pv.closeActionBtn} onPress={doClose}>
+            <Text style={pv.closeActionText}>{t("common.close")}</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </GestureDetector>
   );
 }
 
