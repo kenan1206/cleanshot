@@ -49,6 +49,18 @@ export default function LiveStill() {
   const [convertedIds, setConvertedIds] = useState<string[]>([]);
   const [showDeleteSheet, setShowDeleteSheet] = useState(false);
   const [previewItem, setPreviewItem] = useState<LiveItem | null>(null);
+  const [selectMode, setSelectMode] = useState(false);
+
+  const enterSelectMode = useCallback((id?: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    setSelectMode(true);
+    if (id) setItems((prev) => prev.map((i) => (i.id === id ? { ...i, selected: true } : i)));
+  }, []);
+
+  const exitSelectMode = useCallback(() => {
+    setSelectMode(false);
+    setItems((prev) => prev.map((i) => ({ ...i, selected: false })));
+  }, []);
 
   const loadLivePhotos = useCallback(async () => {
     setLoading(true);
@@ -227,22 +239,16 @@ export default function LiveStill() {
     <View style={[s.root, { paddingTop: insets.top }]}>
       <Header onBack={() => router.back()} title={t("live_still_screen.header_title")} />
 
-      {/* Gratis-Nutzungen Badge */}
-      <View style={s.usesBar}>
-        {isPremium ? (
-          <View style={[s.usesPill, s.usesPillPro]} testID="tool-uses-pill">
-            <Ionicons name="diamond" size={13} color="#fff" />
-            <Text style={[s.usesText, { color: "#fff" }]}>{t("tools.pro_unlimited")}</Text>
-          </View>
-        ) : (
+      {!isPremium && (
+        <View style={s.usesBar}>
           <View style={[s.usesPill, lsLocked && s.usesPillLocked]} testID="tool-uses-pill">
             <Ionicons name={lsLocked ? "lock-closed" : "flash"} size={13} color={lsLocked ? "#FF9500" : "#007AFF"} />
             <Text style={[s.usesText, lsLocked && { color: "#FF9500" }]}>
               {t("tools.free_uses_left", { count: lsRemaining })}
             </Text>
           </View>
-        )}
-      </View>
+        </View>
+      )}
 
       {/* Stats row */}
       <View style={s.statsRow}>
@@ -267,9 +273,12 @@ export default function LiveStill() {
           const isConverting = item.status === "converting";
           return (
             <View style={{ width: CELL, marginBottom: GAP }}>
-              {/* Thumbnail — Tap = Preview */}
+              {/* Thumbnail — Tap = Preview oder Auswählen */}
               <Pressable
-                onPress={() => !converting && item.status === "idle" && setPreviewItem(item)}
+                onPress={() => {
+                  if (selectMode) { toggleItem(item.id); }
+                  else if (!converting && item.status === "idle") { setPreviewItem(item); }
+                }}
                 testID={`live-preview-${item.id}`}
                 style={s.thumbWrap}
               >
@@ -293,10 +302,10 @@ export default function LiveStill() {
                     <Ionicons name="checkmark-circle" size={32} color="#34C759" />
                   </View>
                 )}
-                {/* Checkbox — Tap = Toggle select */}
+                {/* Auswahl-Kreis — Apple Photos Stil */}
                 {item.status === "idle" && (
                   <Pressable
-                    onPress={() => toggleItem(item.id)}
+                    onPress={() => selectMode ? toggleItem(item.id) : enterSelectMode(item.id)}
                     hitSlop={8}
                     testID={`live-check-${item.id}`}
                     style={[s.checkCircle, isSelected && s.checkCircleOn]}
@@ -399,14 +408,34 @@ export default function LiveStill() {
   );
 }
 
-function Header({ onBack, title }: { onBack: () => void; title: string }) {
+function Header({ onBack, title, selectMode = false, onEnterSelect, onExitSelect, onToggleAll, allSelected }: {
+  onBack: () => void; title: string;
+  selectMode?: boolean; onEnterSelect?: () => void; onExitSelect?: () => void;
+  onToggleAll?: () => void; allSelected?: boolean;
+}) {
   return (
     <View style={s.header}>
-      <Pressable onPress={onBack} style={s.backBtn} testID="back-btn">
-        <Ionicons name="chevron-back" size={24} color="#007AFF" />
-      </Pressable>
+      {selectMode ? (
+        <Pressable onPress={onExitSelect} hitSlop={12} style={s.backBtn} testID="exit-select-btn">
+          <Ionicons name="close" size={26} color="#1C1C1E" />
+        </Pressable>
+      ) : (
+        <Pressable onPress={onBack} style={s.backBtn} testID="back-btn">
+          <Ionicons name="chevron-back" size={24} color="#007AFF" />
+        </Pressable>
+      )}
       <Text style={s.headerTitle}>{title}</Text>
-      <View style={{ width: 40 }} />
+      {selectMode ? (
+        <Pressable onPress={onToggleAll} hitSlop={12} style={s.backBtn} testID="toggle-all-btn">
+          <Text style={{ color: "#007AFF", fontSize: 14, fontWeight: "600" }}>
+            {allSelected ? "Keine" : "Alle"}
+          </Text>
+        </Pressable>
+      ) : (
+        <Pressable onPress={onEnterSelect} hitSlop={12} style={s.backBtn} testID="enter-select-btn">
+          <Ionicons name="checkmark-circle-outline" size={24} color="#007AFF" />
+        </Pressable>
+      )}
     </View>
   );
 }

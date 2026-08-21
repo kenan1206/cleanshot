@@ -65,7 +65,19 @@ export default function VideoCompress() {
   const [compressedIds, setCompressedIds] = useState<string[]>([]);
   const [showDeleteSheet, setShowDeleteSheet] = useState(false);
   const [previewVideo, setPreviewVideo] = useState<VideoItem | null>(null);
+  const [selectMode, setSelectMode] = useState(false);
   const cancelRef = useRef(false);
+
+  const enterSelectMode = useCallback((id?: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    setSelectMode(true);
+    if (id) setVideos((prev) => prev.map((v) => (v.id === id ? { ...v, selected: true } : v)));
+  }, []);
+
+  const exitSelectMode = useCallback(() => {
+    setSelectMode(false);
+    setVideos((prev) => prev.map((v) => ({ ...v, selected: false })));
+  }, []);
 
   const loadVideos = useCallback(async () => {
     setLoading(true);
@@ -265,22 +277,16 @@ export default function VideoCompress() {
     <View style={[s.root, { paddingTop: insets.top }]}>
       <Header onBack={() => router.back()} title={t("video_compress_screen.header_title")} />
 
-      {/* Gratis-Nutzungen Badge */}
-      <View style={s.usesBar}>
-        {isPremium ? (
-          <View style={[s.usesPill, s.usesPillPro]} testID="tool-uses-pill">
-            <Ionicons name="diamond" size={13} color="#fff" />
-            <Text style={[s.usesText, { color: "#fff" }]}>{t("tools.pro_unlimited")}</Text>
-          </View>
-        ) : (
+      {!isPremium && (
+        <View style={s.usesBar}>
           <View style={[s.usesPill, vcLocked && s.usesPillLocked]} testID="tool-uses-pill">
             <Ionicons name={vcLocked ? "lock-closed" : "flash"} size={13} color={vcLocked ? "#FF9500" : "#007AFF"} />
             <Text style={[s.usesText, vcLocked && { color: "#FF9500" }]}>
               {t("tools.free_uses_left", { count: vcRemaining })}
             </Text>
           </View>
-        )}
-      </View>
+        </View>
+      )}
 
       {/* Stats row */}
       <View style={s.statsRow}>
@@ -307,7 +313,10 @@ export default function VideoCompress() {
           <View style={{ width: CELL, marginBottom: GAP }}>
             {/* Thumbnail — Tap = Preview */}
             <Pressable
-              onPress={() => !compressing && v.status === "idle" && setPreviewVideo(v)}
+              onPress={() => {
+                if (selectMode) { toggleItem(v.id); }
+                else if (!compressing && v.status === "idle") { setPreviewVideo(v); }
+              }}
               testID={`video-preview-${v.id}`}
               style={{ position: "relative" }}
             >
@@ -342,10 +351,10 @@ export default function VideoCompress() {
                   </View>
                 )}
 
-                {/* Checkbox */}
+                {/* Auswahl-Kreis — Apple Photos Stil */}
                 {v.status === "idle" && (
                   <Pressable
-                    onPress={() => toggleItem(v.id)}
+                    onPress={() => selectMode ? toggleItem(v.id) : enterSelectMode(v.id)}
                     hitSlop={8}
                     testID={`video-check-${v.id}`}
                     style={[s.checkCircle, v.selected && s.checkCircleOn]}
@@ -432,14 +441,34 @@ export default function VideoCompress() {
   );
 }
 
-function Header({ onBack, title }: { onBack: () => void; title: string }) {
+function Header({ onBack, title, selectMode = false, onEnterSelect, onExitSelect, onToggleAll, allSelected }: {
+  onBack: () => void; title: string;
+  selectMode?: boolean; onEnterSelect?: () => void; onExitSelect?: () => void;
+  onToggleAll?: () => void; allSelected?: boolean;
+}) {
   return (
     <View style={s.header}>
-      <Pressable onPress={onBack} style={s.backBtn} testID="back-btn">
-        <Ionicons name="chevron-back" size={24} color="#007AFF" />
-      </Pressable>
+      {selectMode ? (
+        <Pressable onPress={onExitSelect} hitSlop={12} style={s.backBtn} testID="exit-select-btn">
+          <Ionicons name="close" size={26} color="#1C1C1E" />
+        </Pressable>
+      ) : (
+        <Pressable onPress={onBack} style={s.backBtn} testID="back-btn">
+          <Ionicons name="chevron-back" size={24} color="#007AFF" />
+        </Pressable>
+      )}
       <Text style={s.headerTitle}>{title}</Text>
-      <View style={{ width: 40 }} />
+      {selectMode ? (
+        <Pressable onPress={onToggleAll} hitSlop={12} style={s.backBtn} testID="toggle-all-btn">
+          <Text style={{ color: "#007AFF", fontSize: 14, fontWeight: "600" }}>
+            {allSelected ? "Keine" : "Alle"}
+          </Text>
+        </Pressable>
+      ) : (
+        <Pressable onPress={onEnterSelect} hitSlop={12} style={s.backBtn} testID="enter-select-btn">
+          <Ionicons name="checkmark-circle-outline" size={24} color="#007AFF" />
+        </Pressable>
+      )}
     </View>
   );
 }

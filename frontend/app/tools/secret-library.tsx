@@ -1011,13 +1011,29 @@ export default function SecretLibrary() {
                   </View>
                 )}
 
-                {/* Select Mode: Checkbox Overlay */}
-                {selectMode && (
-                  <View style={[s.selectOverlay, isSelected && s.selectOverlayOn]} pointerEvents="none">
-                    <View style={[s.selectCircle, isSelected && s.selectCircleOn]}>
-                      {isSelected && <Ionicons name="checkmark" size={14} color="#fff" />}
-                    </View>
+                {/* Apple Photos Auswahlkreis — immer sichtbar */}
+                <TouchableOpacity
+                  style={s.selCircleBtn}
+                  onPress={() => {
+                    if (!selectMode) {
+                      setSelectMode(true);
+                      toggleSelect(item.id);
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+                    } else {
+                      toggleSelect(item.id);
+                    }
+                  }}
+                  hitSlop={8}
+                  testID={`sel-circle-${item.id}`}
+                >
+                  <View style={[s.selCircleInner, isSelected && s.selCircleInnerOn]}>
+                    {isSelected && <Ionicons name="checkmark" size={13} color="#fff" />}
                   </View>
+                </TouchableOpacity>
+
+                {/* Auswahl-Tint in SelectMode */}
+                {selectMode && (
+                  <View style={[s.selectOverlay, isSelected && s.selectOverlayOn]} pointerEvents="none" />
                 )}
 
                 {/* X-Button — nur im normalen Modus */}
@@ -1245,8 +1261,9 @@ const s = StyleSheet.create({
   // Select mode
   selectOverlay: { ...StyleSheet.absoluteFillObject, borderRadius: 8, backgroundColor: "rgba(0,0,0,0.25)" },
   selectOverlayOn: { backgroundColor: "rgba(0,122,255,0.3)" },
-  selectCircle: { position: "absolute", top: 6, right: 6, width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: "#fff", backgroundColor: "rgba(0,0,0,0.3)", alignItems: "center", justifyContent: "center" },
-  selectCircleOn: { backgroundColor: "#007AFF", borderColor: "#007AFF" },
+  selCircleBtn: { position: "absolute", top: 5, left: 5, zIndex: 20 },
+  selCircleInner: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: "#fff", backgroundColor: "rgba(0,0,0,0.3)", alignItems: "center", justifyContent: "center" },
+  selCircleInnerOn: { backgroundColor: "#007AFF", borderColor: "#007AFF" },
   bulkBar: { position: "absolute", bottom: 0, left: 0, right: 0, flexDirection: "row", gap: 10, paddingHorizontal: 16, paddingTop: 12, backgroundColor: "#fff", borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "rgba(0,0,0,0.08)" },
   bulkSelectAll: { flex: 1, height: 52, borderRadius: 14, backgroundColor: "#F2F2F7", alignItems: "center", justifyContent: "center" },
   bulkSelectAllText: { fontSize: 15, fontWeight: "600", color: "#3C3C43" },
