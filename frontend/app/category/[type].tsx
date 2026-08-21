@@ -277,7 +277,7 @@ export default function CategoryDetail() {
             </Pressable>
           ) : (
             <Pressable onPress={() => enterSelectMode()} testID="category-enter-select" hitSlop={12} style={styles.headerBtn}>
-              <Text style={[t.type.caption, { color: accent, fontWeight: "700" }]}>Auswählen</Text>
+              <Ionicons name="checkmark-circle-outline" size={24} color={accent} />
             </Pressable>
           )}
         </View>
