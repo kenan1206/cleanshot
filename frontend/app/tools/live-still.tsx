@@ -119,7 +119,7 @@ export default function LiveStill() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     setConverting(true);
     setConvertProgress({ done: 0, total: selectedItems.length });
-    await startActiveTask(`${selectedItems.length} Live Photos umwandeln`);
+    await startActiveTask(t("notifications.task_convert"));
 
     // Yield to UI thread so the spinner renders before heavy work begins
     await new Promise<void>((r) => setTimeout(r, 80));
@@ -150,8 +150,8 @@ export default function LiveStill() {
 
     if (count > 0) {
       await finishActiveTask(
-        `${count} Live Photos umgewandelt 📸`,
-        "In deiner Fotomediathek gespeichert",
+        t("notifications.convert_done_title", { count }),
+        t("notifications.convert_done_body"),
       );
     } else {
       cancelActiveTask();

@@ -552,7 +552,20 @@
     "livephotos_title": "Shrink Live Photos 📸",
     "livephotos_body": "Turn Live Photos into stills and save space.",
     "quota_title": "Almost full 🔓",
-    "quota_body": "Your free storage is almost used up – go Pro for unlimited."
+    "quota_body": "Your free storage is almost used up – go Pro for unlimited.",
+    "bg_processing": "{{label}} running in background…",
+    "task_scan": "Scan",
+    "task_delete": "Cleanup",
+    "task_compress": "Compression",
+    "task_convert": "Conversion",
+    "scan_done_title": "Scan complete 🔍",
+    "scan_done_body": "{{size}} of storage can be freed",
+    "delete_done_title": "{{count}} photos deleted 🗑️",
+    "delete_done_body": "{{size}} freed",
+    "compress_done_title": "{{count}} videos compressed 🎬",
+    "compress_done_body": "{{size}} saved",
+    "convert_done_title": "{{count}} Live Photos converted 📸",
+    "convert_done_body": "Saved to your photo library"
   },
   "upsell": {
     "eyebrow": "CLEANU PRO",

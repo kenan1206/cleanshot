@@ -553,7 +553,20 @@
     "livephotos_title": "Verklein Live Photos 📸",
     "livephotos_body": "Zet Live Photos om in stilstaande foto's en bespaar ruimte.",
     "quota_title": "Bijna vol 🔓",
-    "quota_body": "Je gratis opslag is bijna op – ga Pro voor onbeperkt."
+    "quota_body": "Je gratis opslag is bijna op – ga Pro voor onbeperkt.",
+    "bg_processing": "{{label}} wordt op achtergrond uitgevoerd…",
+    "task_scan": "Scan",
+    "task_delete": "Opruimen",
+    "task_compress": "Compressie",
+    "task_convert": "Conversie",
+    "scan_done_title": "Scan voltooid 🔍",
+    "scan_done_body": "{{size}} opslagruimte optimaliseerbaar",
+    "delete_done_title": "{{count}} foto's verwijderd 🗑️",
+    "delete_done_body": "{{size}} vrijgemaakt",
+    "compress_done_title": "{{count}} video's gecomprimeerd 🎬",
+    "compress_done_body": "{{size}} bespaard",
+    "convert_done_title": "{{count}} Live Photos geconverteerd 📸",
+    "convert_done_body": "Opgeslagen in je fotobibliotheek"
   },
   "upsell": {
     "eyebrow": "CLEANU PRO",

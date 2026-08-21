@@ -553,7 +553,20 @@
     "livephotos_title": "Reduce las Live Photos 📸",
     "livephotos_body": "Convierte Live Photos en fotos fijas y ahorra espacio.",
     "quota_title": "Casi lleno 🔓",
-    "quota_body": "Tu espacio gratis casi se acaba – hazte Pro para ilimitado."
+    "quota_body": "Tu espacio gratis casi se acaba – hazte Pro para ilimitado.",
+    "bg_processing": "{{label}} ejecutándose en segundo plano…",
+    "task_scan": "Análisis",
+    "task_delete": "Limpieza",
+    "task_compress": "Compresión",
+    "task_convert": "Conversión",
+    "scan_done_title": "Análisis completado 🔍",
+    "scan_done_body": "{{size}} de almacenamiento optimizable",
+    "delete_done_title": "{{count}} fotos eliminadas 🗑️",
+    "delete_done_body": "{{size}} liberados",
+    "compress_done_title": "{{count}} vídeos comprimidos 🎬",
+    "compress_done_body": "{{size}} ahorrados",
+    "convert_done_title": "{{count}} Live Photos convertidas 📸",
+    "convert_done_body": "Guardadas en tu biblioteca de fotos"
   },
   "upsell": {
     "eyebrow": "CLEANU PRO",

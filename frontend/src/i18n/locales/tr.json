@@ -553,7 +553,20 @@
     "livephotos_title": "Live Fotoğrafları küçült 📸",
     "livephotos_body": "Live Fotoğrafları sabit resme çevir, yer kazan.",
     "quota_title": "Neredeyse dolu 🔓",
-    "quota_body": "Ücretsiz alanın bitmek üzere – sınırsız için Pro."
+    "quota_body": "Ücretsiz alanın bitmek üzere – sınırsız için Pro.",
+    "bg_processing": "{{label}} arka planda çalışıyor…",
+    "task_scan": "Tarama",
+    "task_delete": "Temizleme",
+    "task_compress": "Sıkıştırma",
+    "task_convert": "Dönüştürme",
+    "scan_done_title": "Tarama tamamlandı 🔍",
+    "scan_done_body": "{{size}} depolama alanı optimize edilebilir",
+    "delete_done_title": "{{count}} fotoğraf silindi 🗑️",
+    "delete_done_body": "{{size}} boşaltıldı",
+    "compress_done_title": "{{count}} video sıkıştırıldı 🎬",
+    "compress_done_body": "{{size}} tasarruf edildi",
+    "convert_done_title": "{{count}} Live Fotoğraf dönüştürüldü 📸",
+    "convert_done_body": "Fotoğraf kütüphanenize kaydedildi"
   },
   "upsell": {
     "eyebrow": "CLEANU PRO",

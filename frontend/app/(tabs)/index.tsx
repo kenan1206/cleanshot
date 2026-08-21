@@ -84,7 +84,7 @@ export default function Start() {
 
   const scan = useCallback(async () => {
     setScanning(true);
-    await startActiveTask("Scan");
+    await startActiveTask(t("notifications.task_scan"));
     try {
       const perm = await ensurePermissions();
       setPermission(perm);
@@ -97,7 +97,10 @@ export default function Start() {
       try { await storage.setItem(RESULTS_KEY, JSON.stringify({ analyzed, totalAssets: assets.length })); } catch { /**/ }
       trackEvent("scan_completed", { assets: assets.length });
       const totalMB = (Object.values(analyzed) as { totalSizeMB: number }[]).reduce((s, r) => s + r.totalSizeMB, 0);
-      await finishActiveTask("Scan abgeschlossen 🔍", `${formatSize(totalMB)} Speicher optimierbar`);
+      await finishActiveTask(
+        t("notifications.scan_done_title"),
+        t("notifications.scan_done_body", { size: formatSize(totalMB) }),
+      );
     } catch (e) { cancelActiveTask(); console.warn("scan failed", e); }
     finally { setScanning(false); setRefreshing(false); }
   }, [trackEvent]);

@@ -173,7 +173,7 @@ export default function SwipeCleaner() {
       }
     }
 
-    await startActiveTask(`${pendingDelete.length} Fotos löschen`);
+    await startActiveTask(tr("notifications.task_delete"));
     trackEvent("delete_start", { category: type, count: pendingDelete.length, mb: totalMB, source: "swipe" });
     const ids = pendingDelete.map((a) => a.id);
     const ok = await deleteAssets(ids);
@@ -185,8 +185,8 @@ export default function SwipeCleaner() {
     scanStore.removeIds(new Set(ids));
     const { limit_reached } = await trackUsage(totalMB, pendingDelete.length, String(type));
     await finishActiveTask(
-      `${pendingDelete.length} Fotos gelöscht 🗑️`,
-      `${formatSize(totalMB)} freigegeben`,
+      tr("notifications.delete_done_title", { count: pendingDelete.length }),
+      tr("notifications.delete_done_body", { size: formatSize(totalMB) }),
     );
     trackEvent("delete_success", { category: type, count: pendingDelete.length, mb: totalMB, source: "swipe" });
     router.replace({

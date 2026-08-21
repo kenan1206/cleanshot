@@ -13,6 +13,7 @@
 import { AppState, AppStateStatus } from "react-native";
 import * as KeepAwake from "expo-keep-awake";
 import * as Notifications from "expo-notifications";
+import i18n from "i18next";
 import { hasNotificationPermission } from "./notifications";
 
 const KEEP_AWAKE_TAG = "cleanu-active-task";
@@ -34,7 +35,7 @@ AppState.addEventListener("change", async (state: AppStateStatus) => {
         const id = await Notifications.scheduleNotificationAsync({
           content: {
             title: "CleanU",
-            body: `${_bgLabel} läuft im Hintergrund…`,
+            body: i18n.t("notifications.bg_processing", { label: _bgLabel }) as string,
           },
           trigger: null,
         });

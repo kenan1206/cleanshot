@@ -579,7 +579,20 @@
     "livephotos_title": "Уменьши Live Photos 📸",
     "livephotos_body": "Преврати Live Photos в обычные фото и сэкономь место.",
     "quota_title": "Почти заполнено 🔓",
-    "quota_body": "Бесплатное место почти закончилось – оформи Pro без лимитов."
+    "quota_body": "Бесплатное место почти закончилось – оформи Pro без лимитов.",
+    "bg_processing": "{{label}} выполняется в фоне…",
+    "task_scan": "Сканирование",
+    "task_delete": "Очистка",
+    "task_compress": "Сжатие",
+    "task_convert": "Конвертация",
+    "scan_done_title": "Сканирование завершено 🔍",
+    "scan_done_body": "{{size}} можно освободить",
+    "delete_done_title": "{{count}} фото удалено 🗑️",
+    "delete_done_body": "{{size}} освобождено",
+    "compress_done_title": "{{count}} видео сжато 🎬",
+    "compress_done_body": "{{size}} сэкономлено",
+    "convert_done_title": "{{count}} Live Photos конвертировано 📸",
+    "convert_done_body": "Сохранено в медиатеку"
   },
   "upsell": {
     "eyebrow": "CLEANU PRO",

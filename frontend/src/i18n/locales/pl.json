@@ -579,7 +579,20 @@
     "livephotos_title": "Zmniejsz Live Photos 📸",
     "livephotos_body": "Zamień Live Photos w zdjęcia statyczne i oszczędź miejsce.",
     "quota_title": "Prawie pełno 🔓",
-    "quota_body": "Twoje darmowe miejsce się kończy – wybierz Pro bez limitu."
+    "quota_body": "Twoje darmowe miejsce się kończy – wybierz Pro bez limitu.",
+    "bg_processing": "{{label}} działa w tle…",
+    "task_scan": "Skanowanie",
+    "task_delete": "Czyszczenie",
+    "task_compress": "Kompresja",
+    "task_convert": "Konwersja",
+    "scan_done_title": "Skanowanie zakończone 🔍",
+    "scan_done_body": "{{size}} pamięci do zoptymalizowania",
+    "delete_done_title": "{{count}} zdjęć usuniętych 🗑️",
+    "delete_done_body": "{{size}} zwolnione",
+    "compress_done_title": "{{count}} filmów skompresowanych 🎬",
+    "compress_done_body": "{{size}} zaoszczędzone",
+    "convert_done_title": "{{count}} Live Photos przekonwertowanych 📸",
+    "convert_done_body": "Zapisane w bibliotece zdjęć"
   },
   "upsell": {
     "eyebrow": "CLEANU PRO",

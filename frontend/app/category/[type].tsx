@@ -145,7 +145,7 @@ export default function CategoryDetail() {
     }
 
     setDeleting(true);
-    await startActiveTask(`${selectedAssets.length} Fotos löschen`);
+    await startActiveTask(tr("notifications.task_delete"));
     trackEvent("delete_start", { category: type, count: selectedAssets.length, mb: totalMB });
     try {
       const ids = selectedAssets.map((a) => a.id);
@@ -158,8 +158,8 @@ export default function CategoryDetail() {
       scanStore.removeIds(new Set(ids));
       const { limit_reached } = await trackUsage(totalMB, selectedAssets.length, String(type));
       await finishActiveTask(
-        `${selectedAssets.length} Fotos gelöscht 🗑️`,
-        `${formatSize(totalMB)} freigegeben`,
+        tr("notifications.delete_done_title", { count: selectedAssets.length }),
+        tr("notifications.delete_done_body", { size: formatSize(totalMB) }),
       );
       trackEvent("delete_success", { category: type, count: selectedAssets.length, mb: totalMB });
       router.replace({

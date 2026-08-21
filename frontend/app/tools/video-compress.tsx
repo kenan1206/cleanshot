@@ -131,7 +131,7 @@ export default function VideoCompress() {
     cancelRef.current = false;
     setOverallProgress({ done: 0, total: selectedVideos.length });
     setCurrentItemPct(0);
-    await startActiveTask(`${selectedVideos.length} Videos komprimieren`);
+    await startActiveTask(t("notifications.task_compress"));
 
     // Yield to UI thread so the spinner renders before heavy native work begins
     // (eliminates the ~3s freeze on the "Komprimieren" button press)
@@ -177,8 +177,8 @@ export default function VideoCompress() {
 
     if (doneCount > 0) {
       await finishActiveTask(
-        `${doneCount} Videos komprimiert 🎬`,
-        `${formatSize(saved)} gespart`,
+        t("notifications.compress_done_title", { count: doneCount }),
+        t("notifications.compress_done_body", { size: formatSize(saved) }),
       );
     } else {
       cancelActiveTask();

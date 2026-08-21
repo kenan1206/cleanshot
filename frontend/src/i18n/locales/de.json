@@ -551,7 +551,20 @@
     "livephotos_title": "Live-Fotos verkleinern 📸",
     "livephotos_body": "Wandle Live-Fotos in Standbilder und spare Platz.",
     "quota_title": "Fast voll 🔓",
-    "quota_body": "Dein Gratis-Speicher ist fast aufgebraucht – Pro für unbegrenzt."
+    "quota_body": "Dein Gratis-Speicher ist fast aufgebraucht – Pro für unbegrenzt.",
+    "bg_processing": "{{label}} läuft im Hintergrund…",
+    "task_scan": "Scan",
+    "task_delete": "Bereinigung",
+    "task_compress": "Komprimierung",
+    "task_convert": "Konvertierung",
+    "scan_done_title": "Scan abgeschlossen 🔍",
+    "scan_done_body": "{{size}} Speicher optimierbar",
+    "delete_done_title": "{{count}} Fotos gelöscht 🗑️",
+    "delete_done_body": "{{size}} freigegeben",
+    "compress_done_title": "{{count}} Videos komprimiert 🎬",
+    "compress_done_body": "{{size}} gespart",
+    "convert_done_title": "{{count}} Live Photos umgewandelt 📸",
+    "convert_done_body": "In deiner Fotomediathek gespeichert"
   },
   "upsell": {
     "eyebrow": "CLEANU PRO",
