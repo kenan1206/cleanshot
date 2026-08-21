@@ -9,8 +9,8 @@ import type { CustomerInfo, PurchasesOfferings, PurchasesPackage } from "react-n
 const TEST_KEY = process.env.EXPO_PUBLIC_REVENUECAT_TEST_API_KEY ?? "";
 const IOS_KEY  = process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY ?? "";
 
-// Use iOS key on real device (both debug + release) — sandbox purchases still work with sandbox Apple ID
-// Only use test key on web preview
+// Use iOS key on real device (both debug + release) — sandbox purchases still work with sandbox Apple ID.
+// Only use the test key on the web preview.
 function getApiKey(): string {
   if (Platform.OS === "web") return TEST_KEY;
   if (Platform.OS === "ios") return IOS_KEY;
@@ -19,14 +19,18 @@ function getApiKey(): string {
 
 export const RC_ENTITLEMENT = "CleanU Pro"; // must match RC dashboard identifier
 
-export const rcEnabled = !!(TEST_KEY || IOS_KEY);
+// This must be based on the key for the current platform. Using `TEST_KEY || IOS_KEY`
+// here can make an iOS release appear configured while configure() receives an
+// empty iOS key, causing every production offering request to fail.
+const ACTIVE_API_KEY = getApiKey();
+export const rcEnabled = !!ACTIVE_API_KEY;
 
 // Call at module scope in _layout.tsx BEFORE any component mounts
 export function initRevenueCat() {
   if (!rcEnabled) return;
   try {
     Purchases.setLogLevel(__DEV__ ? LOG_LEVEL.DEBUG : LOG_LEVEL.WARN);
-    Purchases.configure({ apiKey: getApiKey() });
+    Purchases.configure({ apiKey: ACTIVE_API_KEY });
   } catch (e) {
     console.warn("[RevenueCat] init failed:", e);
   }
@@ -71,7 +75,9 @@ export function RevenueCatProvider({ children, userId }: { children: React.React
     if (!rcEnabled) return;
     const listener = (info: CustomerInfo) => setCustomerInfo(info);
     Purchases.addCustomerInfoUpdateListener(listener);
-    return () => Purchases.removeCustomerInfoUpdateListener(listener);
+    return () => {
+      Purchases.removeCustomerInfoUpdateListener(listener);
+    };
   }, []);
 
   // Identity: logIn when userId is available
