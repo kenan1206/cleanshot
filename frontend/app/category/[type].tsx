@@ -15,6 +15,7 @@ import AssetThumbnail from "@/src/components/AssetThumbnail";
 import { Category, PhotoAsset, formatSize, deleteAssets } from "@/src/utils/photos";
 import { CATEGORY_META } from "@/src/components/CategoryCard";
 import { scanStore } from "@/src/utils/scanStore";
+import { startActiveTask, finishActiveTask, cancelActiveTask } from "@/src/utils/activeTask";
 import MediaViewerModal, { ViewerMedia } from "@/src/components/MediaViewerModal";
 
 const { width } = Dimensions.get("window");
@@ -144,16 +145,22 @@ export default function CategoryDetail() {
     }
 
     setDeleting(true);
+    await startActiveTask(`${selectedAssets.length} Fotos löschen`);
     trackEvent("delete_start", { category: type, count: selectedAssets.length, mb: totalMB });
     try {
       const ids = selectedAssets.map((a) => a.id);
       const ok = await deleteAssets(ids);
       if (!ok) {
+        cancelActiveTask();
         setDeleting(false);
         return;
       }
       scanStore.removeIds(new Set(ids));
       const { limit_reached } = await trackUsage(totalMB, selectedAssets.length, String(type));
+      await finishActiveTask(
+        `${selectedAssets.length} Fotos gelöscht 🗑️`,
+        `${formatSize(totalMB)} freigegeben`,
+      );
       trackEvent("delete_success", { category: type, count: selectedAssets.length, mb: totalMB });
       router.replace({
         pathname: "/success",
@@ -165,6 +172,7 @@ export default function CategoryDetail() {
         },
       });
     } catch {
+      cancelActiveTask();
       trackEvent("delete_error", { category: type });
     } finally {
       setDeleting(false);

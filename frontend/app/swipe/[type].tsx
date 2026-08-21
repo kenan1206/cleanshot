@@ -27,6 +27,7 @@ import AssetThumbnail from "@/src/components/AssetThumbnail";
 import { CATEGORY_META } from "@/src/components/CategoryCard";
 import { Category, PhotoAsset, formatSize, deleteAssets } from "@/src/utils/photos";
 import { scanStore } from "@/src/utils/scanStore";
+import { startActiveTask, finishActiveTask, cancelActiveTask } from "@/src/utils/activeTask";
 
 const { width, height } = Dimensions.get("window");
 const CARD_W = width - 40;
@@ -172,15 +173,21 @@ export default function SwipeCleaner() {
       }
     }
 
+    await startActiveTask(`${pendingDelete.length} Fotos löschen`);
     trackEvent("delete_start", { category: type, count: pendingDelete.length, mb: totalMB, source: "swipe" });
     const ids = pendingDelete.map((a) => a.id);
     const ok = await deleteAssets(ids);
     if (!ok) {
+      cancelActiveTask();
       finishedRef.current = false;
       return;
     }
     scanStore.removeIds(new Set(ids));
     const { limit_reached } = await trackUsage(totalMB, pendingDelete.length, String(type));
+    await finishActiveTask(
+      `${pendingDelete.length} Fotos gelöscht 🗑️`,
+      `${formatSize(totalMB)} freigegeben`,
+    );
     trackEvent("delete_success", { category: type, count: pendingDelete.length, mb: totalMB, source: "swipe" });
     router.replace({
       pathname: "/success",

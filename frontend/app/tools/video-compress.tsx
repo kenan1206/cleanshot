@@ -15,6 +15,7 @@ import AssetThumbnail from "@/src/components/AssetThumbnail";
 import VideoPreviewPlayer from "@/src/components/VideoPreviewPlayer";
 import { useApp } from "@/src/context/AppContext";
 import { useRevenueCat } from "@/src/lib/revenuecat";
+import { startActiveTask, finishActiveTask, cancelActiveTask } from "@/src/utils/activeTask";
 
 type VideoItem = {
   id: string; uri: string; filename: string; duration: number;
@@ -118,6 +119,7 @@ export default function VideoCompress() {
     cancelRef.current = false;
     setOverallProgress({ done: 0, total: selectedVideos.length });
     setCurrentItemPct(0);
+    await startActiveTask(`${selectedVideos.length} Videos komprimieren`);
 
     // Yield to UI thread so the spinner renders before heavy native work begins
     // (eliminates the ~3s freeze on the "Komprimieren" button press)
@@ -160,6 +162,15 @@ export default function VideoCompress() {
     setCompressedIds(compressed);
     setCompressing(false);
     setCurrentItemPct(0);
+
+    if (doneCount > 0) {
+      await finishActiveTask(
+        `${doneCount} Videos komprimiert 🎬`,
+        `${formatSize(saved)} gespart`,
+      );
+    } else {
+      cancelActiveTask();
+    }
 
     // Track one use per successfully compressed video (not per session)
     if (doneCount > 0) { trackFeatureUse("video_compress", doneCount).catch(() => {}); }

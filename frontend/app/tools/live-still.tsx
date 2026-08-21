@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import AssetThumbnail from "@/src/components/AssetThumbnail";
 import { useApp } from "@/src/context/AppContext";
 import { useRevenueCat } from "@/src/lib/revenuecat";
+import { startActiveTask, finishActiveTask, cancelActiveTask } from "@/src/utils/activeTask";
 
 type LiveItem = {
   id: string; uri: string; width: number; height: number;
@@ -106,6 +107,7 @@ export default function LiveStill() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     setConverting(true);
     setConvertProgress({ done: 0, total: selectedItems.length });
+    await startActiveTask(`${selectedItems.length} Live Photos umwandeln`);
 
     // Yield to UI thread so the spinner renders before heavy work begins
     await new Promise<void>((r) => setTimeout(r, 80));
@@ -133,6 +135,15 @@ export default function LiveStill() {
     setDoneCount(count);
     setConvertedIds(converted);
     setConverting(false);
+
+    if (count > 0) {
+      await finishActiveTask(
+        `${count} Live Photos umgewandelt 📸`,
+        "In deiner Fotomediathek gespeichert",
+      );
+    } else {
+      cancelActiveTask();
+    }
 
     // Track one use per successfully converted photo (not per session)
     if (count > 0) { trackFeatureUse("live_still", count).catch(() => {}); }

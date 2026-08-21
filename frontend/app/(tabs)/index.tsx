@@ -35,6 +35,7 @@ import {
   formatSize,
 } from "@/src/utils/photos";
 import { storage } from "@/src/utils/storage";
+import { startActiveTask, finishActiveTask, cancelActiveTask } from "@/src/utils/activeTask";
 import { scanStore } from "@/src/utils/scanStore";
 import { useTranslation } from "react-i18next";
 
@@ -83,10 +84,11 @@ export default function Start() {
 
   const scan = useCallback(async () => {
     setScanning(true);
+    await startActiveTask("Scan");
     try {
       const perm = await ensurePermissions();
       setPermission(perm);
-      if (!perm.granted) { setScanning(false); return; }
+      if (!perm.granted) { cancelActiveTask(); setScanning(false); return; }
       trackEvent("scan_started");
       const assets = await fetchAllAssets(20000, (done) => setScannedCount(done));
       const analyzed = await analyzeAll(assets);
@@ -94,7 +96,9 @@ export default function Start() {
       scanStore.set(analyzed, assets);
       try { await storage.setItem(RESULTS_KEY, JSON.stringify({ analyzed, totalAssets: assets.length })); } catch { /**/ }
       trackEvent("scan_completed", { assets: assets.length });
-    } catch (e) { console.warn("scan failed", e); }
+      const totalMB = (Object.values(analyzed) as { totalSizeMB: number }[]).reduce((s, r) => s + r.totalSizeMB, 0);
+      await finishActiveTask("Scan abgeschlossen 🔍", `${formatSize(totalMB)} Speicher optimierbar`);
+    } catch (e) { cancelActiveTask(); console.warn("scan failed", e); }
     finally { setScanning(false); setRefreshing(false); }
   }, [trackEvent]);
 
