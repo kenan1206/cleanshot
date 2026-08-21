@@ -27,7 +27,10 @@ let _wentToBackground = false;
 AppState.addEventListener("change", async (state: AppStateStatus) => {
   if (!_isActive) return;
 
-  if (state === "background" || state === "inactive") {
+  if (state === "background") {
+    // Nur bei echtem Hintergrund setzen — "inactive" ist ein kurzer Übergangszustand
+    // (z.B. Notification Center öffnen, Anruf, Systemdialog) und soll keine
+    // Fertig-Notification auslösen wenn der Nutzer noch in der App ist.
     _wentToBackground = true;
     if (_bgNotifId) return; // bereits gezeigt
     if (await hasNotificationPermission()) {

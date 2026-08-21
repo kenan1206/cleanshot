@@ -11,10 +11,10 @@ import { storage } from "@/src/utils/storage";
 
 const PERMISSION_ASKED_KEY = "cleanu.notif_permission_asked";
 
-// Foreground presentation (banner + sound while app is open).
+// Foreground presentation: kein Banner wenn App offen ist — nur im Hintergrund sinnvoll.
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowBanner: true,
+    shouldShowBanner: false,  // Banner nur wenn App im Hintergrund (iOS handled das selbst)
     shouldShowList: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
