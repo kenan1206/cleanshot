@@ -8,12 +8,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import GradientBackground from "@/src/components/GradientBackground";
 import { useTheme } from "@/src/theme/ThemeContext";
 import { useApp } from "@/src/context/AppContext";
+import { useRevenueCat } from "@/src/lib/revenuecat";
 
 export default function Contacts() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useApp();
+  const rc = useRevenueCat();
+  const isPremium = rc.isSubscribed || !!user?.is_premium;
 
   return (
     <GradientBackground>
@@ -33,7 +36,7 @@ export default function Contacts() {
             </LinearGradient>
           </View>
 
-          {!user?.is_premium && (
+          {!isPremium && (
             <View style={[styles.proBadge, { backgroundColor: "#5AC8FA" }]}>
               <Ionicons name="star" size={12} color="#fff" />
               <Text style={styles.proText}>PREMIUM FEATURE</Text>
@@ -65,7 +68,7 @@ export default function Contacts() {
             ))}
           </View>
 
-          {!user?.is_premium && (
+          {!isPremium && (
             <Pressable
               testID="contacts-upgrade-btn"
               onPress={() => router.push("/paywall")}
@@ -83,7 +86,7 @@ export default function Contacts() {
             </Pressable>
           )}
 
-          {user?.is_premium && (
+          {isPremium && (
             <View style={[styles.badge, { backgroundColor: "#5AC8FA20" }]}>
               <Ionicons name="construct" size={14} color="#5AC8FA" />
               <Text style={[styles.badgeText, { color: "#5AC8FA" }]}>Wird gebaut</Text>

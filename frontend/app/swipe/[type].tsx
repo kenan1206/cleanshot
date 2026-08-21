@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 
 import { useTheme } from "@/src/theme/ThemeContext";
 import { useApp } from "@/src/context/AppContext";
+import { useRevenueCat } from "@/src/lib/revenuecat";
 import GradientBackground from "@/src/components/GradientBackground";
 import AppButton from "@/src/components/AppButton";
 import AssetThumbnail from "@/src/components/AssetThumbnail";
@@ -39,6 +40,8 @@ export default function SwipeCleaner() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, trackUsage, trackEvent } = useApp();
+  const rc = useRevenueCat();
+  const isPremium = rc.isSubscribed || !!user?.is_premium;
 
   const meta = CATEGORY_META[type as Category] ?? CATEGORY_META.duplicates;
   const accent = t.colors[meta.colorKey];
@@ -158,7 +161,7 @@ export default function SwipeCleaner() {
     }
 
     // Free-tier gating — nur noch MB-basiert (100 MB gratis)
-    if (!user?.is_premium) {
+    if (!isPremium) {
       const wouldExceedMB = (user?.free_mb_used ?? 0) + totalMB > 100;
       if (wouldExceedMB) {
         finishedRef.current = false;

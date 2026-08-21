@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useApp } from "@/src/context/AppContext";
+import { useRevenueCat } from "@/src/lib/revenuecat";
 import { scanStore } from "@/src/utils/scanStore";
 import { Category, formatSize } from "@/src/utils/photos";
 import { CATEGORY_META } from "@/src/components/CategoryCard";
@@ -31,6 +32,8 @@ export default function StorageSummary() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const { user } = useApp();
+  const rc = useRevenueCat();
+  const isPremium = rc.isSubscribed || !!user?.is_premium;
   const { results } = scanStore.get();
 
   const categories = useMemo(() => {
@@ -113,7 +116,7 @@ export default function StorageSummary() {
 
       {/* CTA */}
       <View style={[styles.ctaWrap, { paddingBottom: insets.bottom + 16 }]}>
-        {!user?.is_premium ? (
+        {!isPremium ? (
           <Pressable
             onPress={() => router.push("/paywall")}
             testID="summary-upgrade-btn"

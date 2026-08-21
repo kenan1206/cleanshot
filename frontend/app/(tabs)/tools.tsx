@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@/src/theme/ThemeContext";
 import { useApp } from "@/src/context/AppContext";
+import { useRevenueCat } from "@/src/lib/revenuecat";
 import GradientBackground from "@/src/components/GradientBackground";
 
 type ToolItem = {
@@ -68,6 +69,8 @@ export default function Tools() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useApp();
+  const rc = useRevenueCat();
+  const isPremium = rc.isSubscribed || !!user?.is_premium;
 
   return (
     <GradientBackground>
@@ -99,7 +102,7 @@ export default function Tools() {
         {/* Tool cards */}
         <View style={styles.list}>
           {TOOLS.map((tool, index) => {
-            const isLocked = tool.premiumRequired && !user?.is_premium;
+            const isLocked = tool.premiumRequired && !isPremium;
             return (
               <Pressable
                 key={tool.id}
@@ -198,7 +201,7 @@ export default function Tools() {
         </View>
 
         {/* Premium teaser */}
-        {!user?.is_premium && (
+        {!isPremium && (
           <Pressable
             testID="tools-upgrade-banner"
             onPress={() => router.push("/paywall")}

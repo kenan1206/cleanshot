@@ -14,6 +14,7 @@ import * as Haptics from "expo-haptics";
 import { useTranslation } from "react-i18next";
 import AssetThumbnail from "@/src/components/AssetThumbnail";
 import { useApp } from "@/src/context/AppContext";
+import { useRevenueCat } from "@/src/lib/revenuecat";
 
 type LiveItem = {
   id: string; uri: string; width: number; height: number;
@@ -26,8 +27,9 @@ export default function LiveStill() {
   const { width } = useWindowDimensions();
   const { t } = useTranslation();
   const { user, trackUsage, trackFeatureUse } = useApp();
+  const rc = useRevenueCat();
   const FREE_TOOL_USES = 2;
-  const isPremium = !!user?.is_premium;
+  const isPremium = rc.isSubscribed || !!user?.is_premium;
   const lsUsed = user?.free_live_still_used ?? 0;
   const lsRemaining = Math.max(0, FREE_TOOL_USES - lsUsed);
   const lsLocked = !isPremium && lsUsed >= FREE_TOOL_USES;
@@ -145,7 +147,7 @@ export default function LiveStill() {
       const freedMB = convertedIds.length * 3;
 
       // Free-tier gate — nur noch MB-basiert (100 MB gratis).
-      if (!user?.is_premium) {
+      if (!isPremium) {
         const wouldExceedMB = (user?.free_mb_used ?? 0) + freedMB > 100;
         if (wouldExceedMB) {
           router.push({ pathname: "/paywall", params: { reason: "limit" } });

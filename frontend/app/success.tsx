@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 
 import { useTheme } from "@/src/theme/ThemeContext";
 import { useApp } from "@/src/context/AppContext";
+import { useRevenueCat } from "@/src/lib/revenuecat";
 import GradientBackground from "@/src/components/GradientBackground";
 import AppButton from "@/src/components/AppButton";
 import GlassCard from "@/src/components/GlassCard";
@@ -23,6 +24,8 @@ export default function Success() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { trackEvent, user } = useApp();
+  const rc = useRevenueCat();
+  const isPremium = rc.isSubscribed || !!user?.is_premium;
 
   const freedMB = parseFloat(String(mb ?? "0"));
   const cleanedCount = parseInt(String(count ?? "0"), 10);
@@ -104,7 +107,7 @@ export default function Success() {
             </GlassCard>
           </Animated.View>
 
-          {limitReached && !user?.is_premium && (
+          {limitReached && !isPremium && (
             <Animated.View entering={FadeIn.duration(400).delay(700)} style={{ marginTop: 20 }}>
               <View style={[styles.limitBanner, { borderColor: t.colors.warning + "55", backgroundColor: t.colors.warning + "18" }]}>
                 <Ionicons name="warning" size={18} color={t.colors.warning} />
@@ -137,7 +140,7 @@ export default function Success() {
         </View>
 
         <Animated.View entering={FadeInDown.duration(400).delay(600)} style={{ gap: 10 }}>
-          {limitReached && !user?.is_premium ? (
+          {limitReached && !isPremium ? (
             <AppButton label={tr("success.upgrade")} onPress={() => router.replace("/paywall")} testID="success-upgrade" />
           ) : (
             <AppButton label={tr("success.continue")} onPress={() => {

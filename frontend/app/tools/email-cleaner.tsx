@@ -8,12 +8,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import GradientBackground from "@/src/components/GradientBackground";
 import { useTheme } from "@/src/theme/ThemeContext";
 import { useApp } from "@/src/context/AppContext";
+import { useRevenueCat } from "@/src/lib/revenuecat";
 
 export default function EmailCleaner() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useApp();
+  const rc = useRevenueCat();
+  const isPremium = rc.isSubscribed || !!user?.is_premium;
 
   return (
     <GradientBackground>
@@ -34,7 +37,7 @@ export default function EmailCleaner() {
           </View>
 
           {/* PRO badge */}
-          {!user?.is_premium && (
+          {!isPremium && (
             <View style={[styles.proBadge, { backgroundColor: t.colors.brandPrimary }]}>
               <Ionicons name="star" size={12} color="#fff" />
               <Text style={styles.proText}>PREMIUM FEATURE</Text>
@@ -66,7 +69,7 @@ export default function EmailCleaner() {
             ))}
           </View>
 
-          {!user?.is_premium && (
+          {!isPremium && (
             <Pressable
               testID="email-upgrade-btn"
               onPress={() => router.push("/paywall")}
@@ -84,7 +87,7 @@ export default function EmailCleaner() {
             </Pressable>
           )}
 
-          {user?.is_premium && (
+          {isPremium && (
             <View style={[styles.badge, { backgroundColor: t.colors.brandPrimary + "20" }]}>
               <Ionicons name="construct" size={14} color={t.colors.brandPrimary} />
               <Text style={[styles.badgeText, { color: t.colors.brandPrimary }]}>Wird gebaut</Text>

@@ -59,7 +59,7 @@ export default function Settings() {
         <View style={{ height: 20 }} />
 
         {/* ── Gratis-Kontingent / Premium Bar ── */}
-        {user?.is_premium ? (
+        {(rc.isSubscribed || user?.is_premium) ? (
           <View style={[styles.proCard, { backgroundColor: t.mode === "dark" ? "rgba(28,28,30,0.6)" : "#EEF2FF" }]}>
             <View style={styles.proCardInner}>
               <Ionicons name="diamond" size={28} color="#007AFF" style={{ marginBottom: 6 }} />

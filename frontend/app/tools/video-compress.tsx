@@ -14,6 +14,7 @@ import { VideoCompressor } from "@/src/utils/videoCompressor";
 import AssetThumbnail from "@/src/components/AssetThumbnail";
 import VideoPreviewPlayer from "@/src/components/VideoPreviewPlayer";
 import { useApp } from "@/src/context/AppContext";
+import { useRevenueCat } from "@/src/lib/revenuecat";
 
 type VideoItem = {
   id: string; uri: string; filename: string; duration: number;
@@ -40,8 +41,9 @@ export default function VideoCompress() {
   const { width } = useWindowDimensions();
   const { t } = useTranslation();
   const { user, trackUsage, trackFeatureUse } = useApp();
+  const rc = useRevenueCat();
   const FREE_TOOL_USES = 2;
-  const isPremium = !!user?.is_premium;
+  const isPremium = rc.isSubscribed || !!user?.is_premium;
   const vcUsed = user?.free_video_compress_used ?? 0;
   const vcRemaining = Math.max(0, FREE_TOOL_USES - vcUsed);
   const vcLocked = !isPremium && vcUsed >= FREE_TOOL_USES;
@@ -180,7 +182,7 @@ export default function VideoCompress() {
         .reduce((sum, v) => sum + v.sizeMB, 0);
 
       // Free-tier gate — nur noch MB-basiert (100 MB gratis).
-      if (!user?.is_premium) {
+      if (!isPremium) {
         const wouldExceedMB = (user?.free_mb_used ?? 0) + freedMB > 100;
         if (wouldExceedMB) {
           router.push({ pathname: "/paywall", params: { reason: "limit" } });

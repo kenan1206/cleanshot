@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import i18n from "@/src/i18n";
 import { storage } from "@/src/utils/storage";
 import { useApp } from "@/src/context/AppContext";
+import { useRevenueCat } from "@/src/lib/revenuecat";
 
 type ViewType = "duplicates" | "incomplete" | "backups" | "all";
 
@@ -175,9 +176,10 @@ export default function ContactDetail() {
   const router = useRouter();
   const { t } = useTranslation();
   const { user, trackFeatureUse } = useApp();
+  const rc = useRevenueCat();
 
   const FREE_CONTACT_USES = 2;
-  const isPremium = !!user?.is_premium;
+  const isPremium = rc.isSubscribed || !!user?.is_premium;
   const ctUsed = user?.free_contacts_used ?? 0;
   const ctRemaining = Math.max(0, FREE_CONTACT_USES - ctUsed);
   const contactsLocked = !isPremium && ctUsed >= FREE_CONTACT_USES;

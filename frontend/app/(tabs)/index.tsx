@@ -214,7 +214,7 @@ export default function Start() {
       </View>
 
       {/* ── Free-tier quota bar (nur für Nicht-Premium) ── */}
-      {!user?.is_premium && (
+      {!isPremium && (
         <Pressable
           onPress={() => router.push("/paywall")}
           testID="quota-card"

@@ -8,6 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useApp } from "@/src/context/AppContext";
+import { useRevenueCat } from "@/src/lib/revenuecat";
 import { scanStore } from "@/src/utils/scanStore";
 import { Category, formatSize } from "@/src/utils/photos";
 import { CATEGORY_META } from "@/src/components/CategoryCard";
@@ -29,6 +30,8 @@ export default function StorageTab() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const { user } = useApp();
+  const rc = useRevenueCat();
+  const isPremium = rc.isSubscribed || !!user?.is_premium;
   const [, forceUpdate] = React.useReducer((x) => x + 1, 0);
 
   // Re-render wenn Tab fokussiert wird (damit nach einem Scan die Daten aktuell sind)
@@ -138,7 +141,7 @@ export default function StorageTab() {
       {/* CTA unten */}
       {!noData && (
         <View style={[styles.ctaWrap, { paddingBottom: insets.bottom + 16 }]}>
-          {!user?.is_premium ? (
+          {!isPremium ? (
             <Pressable
               onPress={() => router.push("/paywall")}
               testID="storage-upgrade-btn"
