@@ -241,7 +241,7 @@ export default function CategoryDetail() {
         </View>
       );
     },
-    [selected, accent, t, flatAssets, setViewerIndex, toggle],
+    [selected, selectMode, accent, t, flatAssets, setViewerIndex, toggle],
   );
 
   return (
@@ -252,7 +252,7 @@ export default function CategoryDetail() {
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
           {selectMode ? (
             <Pressable onPress={exitSelectMode} testID="category-cancel-select" hitSlop={12} style={styles.headerBtn}>
-              <Text style={[t.type.caption, { color: accent, fontWeight: "700" }]}>Abbrechen</Text>
+              <Ionicons name="close" size={26} color={t.colors.onSurface} />
             </Pressable>
           ) : (
             <Pressable onPress={() => router.back()} testID="category-back" hitSlop={12} style={styles.headerBtn}>
